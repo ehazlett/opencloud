@@ -20,7 +20,7 @@ You should now be able to view the application on `http://localhost:5000`
 
 Configuration
 --------------
-OpenCloud allows multiple accounts for multiple providers.  To setup your accounts, create a `config_local.json` file in the root of the application directory (you can copy config.json as a start).  OpenCloud uses the concept of "organizations" that allow for multiple accounts across providers.  Here is an example of multiple Amazon EC2 accounts:
+OpenCloud allows multiple accounts for multiple providers.  To setup your accounts, create a `config_local.json` file in the root of the application directory (you can copy `config.json` as a start).  OpenCloud uses the concept of "organizations" that allow for multiple accounts across providers.  Here is an example of multiple Amazon EC2 accounts:
 
 ** Note: `ssh_key` must have new lines replaced with `\n`
 
