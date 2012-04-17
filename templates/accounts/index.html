@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block main_content %}
+<div class="row-fluid">
+  <div class="fill">
+    <h1>Accounts</h1>
+    <table class="table table-striped table-bordered">
+      <thead>
+        <td>ID</td>
+        <td>Subject</td>
+        <td>Created</td>
+        <td>Updated</td>
+      </thead>
+      <tbody>
+        {% for b in bills %}
+        <tr>
+          <td><a href="#" class="btn-bill" data-content="{{b.title}}">{{b.bill_id}}</a></td>
+          <td>{{b.subjects|join(',')}}</td>
+          <td>{{b.created_at}}</td>
+          <td>{{b.updated_at}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
+    <div id="billContent" class="well">
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $("a.btn-bill").click(function(){
+    var content = (this).getAttribute('data-content');
+    $("div#billContent").html(content);
+  });
+
+  $(function(){
+    $("#nav-bills").addClass('active');
+  });
+</script>
+{% endblock %}

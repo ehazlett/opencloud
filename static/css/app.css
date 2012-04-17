@@ -1,0 +1,37 @@
+body {
+  background-color: #fefefe;
+  padding-top: 50px;
+}
+.content {
+}
+.alert {
+  position: fixed;
+  overflow: visible;
+  top: 40px;
+  left: 0;
+  right: 0;
+  z-index: 999;
+}
+div#login {
+  width: 425px;
+  margin: 0 auto 0 auto;
+  text-align: center;
+}
+footer {
+  margin: 0 auto 20px auto;
+  width: 100%;
+  color: #b3b3b3;
+  text-align: center; /* center align it with the container */
+}
+span.info {
+  font-size: 18pt;
+  color: #a5a5a5;
+}
+select#current-organization {
+  position: relative;
+  top: 5px;
+}
+.input-large {
+  font-size: 16px;
+  padding: 10px;
+}

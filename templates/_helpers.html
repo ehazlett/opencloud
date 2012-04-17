@@ -1,0 +1,13 @@
+{% macro render_field(field) %}
+<div class="control-group {% if field.errors %}error{% endif %}">
+  {% if field.type != 'HiddenField' %}
+  {% if 'placeholder' not in kwargs %}
+  <label class="control-label">{{field.label.text}}</label>
+  {% endif %}
+  {% endif %}
+  <div class="controls">
+    {{field(**kwargs)}}
+    <p class="help-block">{{field.errors|join('')}}</p>
+  </div>
+</div>
+{% endmacro %}

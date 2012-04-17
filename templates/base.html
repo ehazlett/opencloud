@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{config.get('APP_NAME')}}{% if title %}:: {{title}}{% endif %}</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- styles -->
+    <link href="{{url_for('static', filename='css/bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/app.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/bootstrap-responsive.min.css')}}" rel="stylesheet">
+
+    <!-- fav and touch icons -->
+    <link rel="shortcut icon" href="{{url_for('static', filename='img/favicon.ico')}}">
+    <link rel="apple-touch-icon" href="{{url_for('static', filename='img/apple-touch-icon.png')}}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{{url_for('static', filename='img/apple-touch-icon-72x72.png')}}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{{url_for('static', filename='img/apple-touch-icon-114x114.png')}}">
+    <!-- scripts -->
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery.min.js')}}"></script>
+  </head>
+  <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    <div id="messages" {% if not messages %}class="hide"{% endif %}>
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{category}}">
+            <a class="close" href="#" data-dismiss="alert">x</a>
+            <p>{{message}}<p>
+          </div>
+        {% endfor %}
+        <script type="text/javascript">
+          $(".alert").delay(5000).fadeOut();
+        </script>
+      {% endif %}
+    </div>
+    {% endwith %}
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="brand" href="/">{{config.get('APP_NAME')}}</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              {% if session %}
+              {% endif %}
+            </ul>
+            <ul class="nav pull-right">
+              {% if session.user %}
+              <li>
+                <select id="current-organization" name="current-organization" class="span2">
+                  <option value="">-----</option>
+                  {% with default_org = session.get('default_organization') %}
+                  {% for org in config.get('APP_CONFIG').get('organizations') %}
+                  <option value="{{org}}" {% if org == default_org %}selected="true"{% endif %}>{{org}}</option>
+                  {% endfor %}
+                  {% endwith %}
+                </select>
+              </li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{session.user.username}} <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="#">{{_('account')}}</a></li>
+                  {% if 'admin' in session.user.roles %}
+                  <li class="divider"></li>
+                  <li><a href="#">admin</a></li>
+                  <li class="divider"></li>
+                  {% endif %}
+                  <li><a href="{{url_for('accounts.logout')}}">{{_('logout')}}</a></li>
+                </ul>
+              </li>
+              {% else %}
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    {% block base_content %}
+    <div class="container-fluid content">
+      <div>
+        <div class="pull-right">{% block page_header_toolbar %}{% endblock %}</div>
+        <h1>{% block page_header %}{% endblock %}</h1>
+      </div>
+      {% block main_content %}{% endblock %}
+    </div>
+    {% endblock %}
+    <footer>
+      <div>&copy; {{config.get('APP_NAME')}} Project</div>
+    </footer>
+    <!-- scripts -->
+    <script type="text/javascript" src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/bootstrap-tab.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/app.js')}}"></script>
+    <script type="text/javascript">
+      $(function(){
+          {% if messages %}
+          $(".alert").alert();
+          {% endif %}
+          $("select#current-organization").bind('change keypress', function() {
+              var currentOrg = $(this).val();
+              $.ajax({
+                  type: 'POST',
+                  url: "{{url_for('accounts.set_default_org')}}",
+                  data: {'org': currentOrg},
+                  success: function(data) { $("select#current-organization").trigger('orgChange'); }
+              });
+          });
+      });
+    </script>
+  </body>
+</html>

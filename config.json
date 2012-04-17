@@ -1,0 +1,17 @@
+{
+  "organizations": {
+    "default": {
+      "api_keys": [
+        "testapikey"
+      ],
+      "provider": "<provider>",
+      "provider_id": "<access_id>",
+      "provider_key": "<secret>",
+      "provider_data": {
+        "keypair": "mykey"
+      },
+      "ssh_user": "username to use when connecting with ssh",
+      "ssh_key": "[Insert RSA Private key here (needed for ssh login to instances] -- replace new lines with \n"
+    }
+  }
+}
