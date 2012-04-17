@@ -56,3 +56,5 @@ OpenCloud allows multiple accounts for multiple providers.  To setup your accoun
   }
 }
 ```
+
+These accounts will now show up in the dropdown list in the upper right when you login.  Provided you have entered proper credentials, you should be able to see your instances listed.
