@@ -21,6 +21,30 @@ import config
 
 libcloud.security.VERIFY_SSL_CERT = config.LIBCLOUD_VERIFY_CERTS
 
+def _get_connection(provider=None, id=None, key=None):
+    """
+    Gets a libcloud connection to the specified provider
+    
+    :param provider: Name of provider (i.e. ec2)
+    :param id: Provider ID 
+    :param key: Provider Key
+    
+    """
+    log = logging.getLogger(__name__)
+    providers = {
+        'ec2': Provider.EC2,
+        'us-east-1': Provider.EC2_US_EAST,
+        'us-west-1': Provider.EC2_US_WEST,
+        'us-west-2': Provider.EC2_US_WEST_OREGON,
+        'eu-west-1': Provider.EC2_EU_WEST,
+        'rackspace': Provider.RACKSPACE,
+        'rackspace_uk': Provider.RACKSPACE_UK,
+        'dfw': Provider.RACKSPACE,
+    }
+    driver = get_driver(providers[provider.lower()])
+    conn = driver(id, key)
+    return conn
+    
 def get_nodes(provider=None, id=None, key=None):
     """
     List all nodes for the specified provider
@@ -33,15 +57,5 @@ def get_nodes(provider=None, id=None, key=None):
     
     """
     log = logging.getLogger(__name__)
-    providers = {
-        'ec2': Provider.EC2,
-        'us-east-1': Provider.EC2_US_EAST,
-        'us-west-1': Provider.EC2_US_WEST,
-        'us-west-2': Provider.EC2_US_WEST_OREGON,
-        'eu-west-1': Provider.EC2_EU_WEST,
-        'rackspace': Provider.RACKSPACE,
-        'rackspace_uk': Provider.RACKSPACE_UK,
-    }
-    driver = get_driver(providers[provider])
-    conn = driver(id, key)
+    conn = _get_connection(provider, id, key)
     return conn.list_nodes()

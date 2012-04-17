@@ -3,36 +3,36 @@
 <a href="#modal-launch-server" class="btn btn-small btn-primary" data-toggle="modal">{{_('Launch Server')}}</a>
 {% endblock %}
 {% block main_content %}
-<div>
-  <ul class="nav nav-tabs">
+<ul class="nav nav-tabs">
     {% for region in regions %}
     <li {% if loop.first %}class="active"{% endif %}>
-      <a href="#tab-content-servers" class="tab" data-toggle="tab" data-region='{{region.name}}'>{{region.name}}</a>
+      <a href="#tab-content-servers" class="tab" data-toggle="tab" data-provider='{{region.name}}'>{{region.name}}</a>
     </li>
     {% endfor %}
-  </ul>
-
-  <div class="tab-content">
+</ul>
+<div class="tab-content">
     <div class="tab-pane active" id="tab-content-servers">
+        <div class="loader">
+            <img src="{{url_for('static', filename='img/loader_64.gif')}}"/>
+        </div>
     </div>
-  </div>
 </div>
 <script type="text/javascript">
-$(function(){
-    $(".tab").click(function(){
-        var provider = $(this).attr('data-region');
-        loadNodes(provider);
-    });
-    $("select#current-organization").on('orgChange', function() {
-        loadNodes(null); 
-    });
     function loadNodes(provider) {
         var org = $("#current-organization").val();
         var query = provider ? '?provider=' + provider : '';
         $("#tab-content-servers").load("{{url_for('dashboard.nodes')}}" + query);  
     };
-
-    loadNodes();
-});
+    $(function(){
+        $(".tab").click(function(){
+            $("#tab-content-servers").html('<div style="margin: 0 auto 0 auto; text-align: center;"><img src="{{url_for('static', filename="img/loader_64.gif")}}"/></div>');
+            var provider = $(this).attr('data-provider');
+            loadNodes(provider);
+        });
+        $("select#current-organization").on('orgChange', function() {
+            location.reload();
+        });
+        loadNodes();
+    });
 </script>
 {% endblock %}

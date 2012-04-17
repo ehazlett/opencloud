@@ -22,8 +22,10 @@ bp = dashboard_blueprint = Blueprint('dashboard', __name__)
 
 @bp.route('/')
 def index():
+    org_data = current_app.config.get('APP_CONFIG').get('organizations').get(session.get('default_organization'))
+    provider = org_data.get('provider')
     ctx = {
-        'regions': current_app.config.get('REGIONS'),
+        'regions': current_app.config.get('REGIONS').get(provider),
     }
     return render_template('dashboard/index.html', **ctx)
     
@@ -36,6 +38,7 @@ def nodes():
     provider_key = org_data.get('provider_key')
     ctx = {
         'provider': provider,
+        'regions': current_app.config.get('REGIONS').get(provider),
         'nodes': cloud.get_nodes(provider, provider_id, provider_key),
     }
     return render_template('dashboard/nodes.html', **ctx)

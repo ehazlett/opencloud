@@ -34,32 +34,32 @@ REDIS_EVENT_CHANNEL = 'opencloud'
 SENTRY_DSN = None
 SECRET_KEY='1q2w3e4r5t6y7u8i9o0p'
 
-REGIONS = [
-    {
-        'provider': 'ec2',
-        'name': 'us-east-1'
-    },
-    {
-        'provider': 'ec2',
-        'name': 'us-west-1'
-    },
-    {
-        'provider': 'ec2',
-        'name': 'us-west-2'
-    },
-    {
-        'provider': 'ec2',
-        'name': 'eu-west-1'
-    },
-    #{
-    #    'provider': 'ec2',
-    #    'name': 'ap-southeast-1'
-    #},
-    #{
-    #    'provider': 'ec2',
-    #    'name': 'ap-southeast-2'
-    #}
-]
+REGIONS = {
+    'ec2': [
+        {
+            'name': 'us-east-1',
+            'provider': 'ec2',
+        },
+        {
+            'name': 'us-west-1',
+            'provider': 'ec2',
+        },
+        {
+            'name': 'us-west-2',
+            'provider': 'ec2',
+        },
+        {
+            'name': 'eu-west-1',
+            'provider': 'ec2',
+        },
+    ],
+    'rackspace': [
+        {
+            'name': 'DFW',
+            'provider': 'rackspace',
+        }
+    ]
+}
 
 def create_app():
     """

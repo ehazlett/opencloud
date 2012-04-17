@@ -8,6 +8,7 @@
         {% else %}
         <td>{{node.public_ips[0]}}</td>
         {% endif %}
+        <td>{{node.private_ips[0]}}</td>
         {% if node.extra.status %}
         {% with status = node.extra.status %}
         <td><span class="label {% if status == 'running' %}label-success{% endif %}">{{node.extra.status|capitalize}}</span></td>
