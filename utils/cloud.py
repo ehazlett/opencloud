@@ -39,6 +39,8 @@ def get_nodes(provider=None, id=None, key=None):
         'us-west-1': Provider.EC2_US_WEST,
         'us-west-2': Provider.EC2_US_WEST_OREGON,
         'eu-west-1': Provider.EC2_EU_WEST,
+        'rackspace': Provider.RACKSPACE,
+        'rackspace_uk': Provider.RACKSPACE_UK,
     }
     driver = get_driver(providers[provider])
     conn = driver(id, key)
