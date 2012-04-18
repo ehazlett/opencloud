@@ -24,8 +24,12 @@ footer {
   text-align: center; /* center align it with the container */
 }
 span.info {
-  font-size: 18pt;
-  color: #a5a5a5;
+  font-size: 18px;
+  color: #d1d1d1;
+}
+span.info-large {
+  font-size: 200%;
+  color: #d1d1d1;
 }
 select#current-organization {
   position: relative;

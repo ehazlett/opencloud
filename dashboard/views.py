@@ -22,23 +22,32 @@ bp = dashboard_blueprint = Blueprint('dashboard', __name__)
 
 @bp.route('/')
 def index():
+    regions = []
     org_data = current_app.config.get('APP_CONFIG').get('organizations').get(session.get('default_organization'))
-    provider = org_data.get('provider')
+    if org_data:
+        provider = org_data.get('provider')
+        regions = current_app.config.get('REGIONS').get(provider)
     ctx = {
-        'regions': current_app.config.get('REGIONS').get(provider),
+        'regions': regions,
     }
     return render_template('dashboard/index.html', **ctx)
     
-@bp.route('/nodes')
+@bp.route('/nodes/')
 def nodes():
     org = request.args.get('organization', session.get('default_organization'))
     org_data = current_app.config.get('APP_CONFIG').get('organizations').get(org)
-    provider = request.args.get('provider', org_data.get('provider'))
-    provider_id = org_data.get('provider_id')
-    provider_key = org_data.get('provider_key')
+    provider = None
+    regions = None
+    nodes = None
+    if org_data:
+        provider = request.args.get('provider', org_data.get('provider'))
+        provider_id = org_data.get('provider_id')
+        provider_key = org_data.get('provider_key')
+        regions = current_app.config.get('REGIONS').get(provider)
+        nodes = cloud.get_nodes(provider, provider_id, provider_key)
     ctx = {
         'provider': provider,
-        'regions': current_app.config.get('REGIONS').get(provider),
-        'nodes': cloud.get_nodes(provider, provider_id, provider_key),
+        'regions': regions,
+        'nodes': nodes,
     }
     return render_template('dashboard/nodes.html', **ctx)
