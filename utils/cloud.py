@@ -59,8 +59,13 @@ def get_nodes(provider=None, id=None, key=None, node_ids=None):
     """
     log = logging.getLogger(__name__)
     log.debug('Getting list of nodes for {0}'.format(provider))
+    nodes = None
     conn = _get_connection(provider, id, key)
-    return conn.list_nodes(node_ids)
+    if provider == 'ec2':
+        nodes = conn.list_nodes(node_ids)
+    else:
+        nodes = conn.list_nodes()
+    return nodes
     
 def reboot_node(provider=None, id=None, key=None, node_id=None):
     """

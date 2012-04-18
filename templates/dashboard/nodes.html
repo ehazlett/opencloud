@@ -24,9 +24,11 @@
         <td>{{node.extra.availability}}</td>
         {% endif %}
         <td class="center">
-            {% if node.extra.status != 'terminated' and node.extra.status != 'shutting-down' %}
+            {% if node.state == 0 or node.state == 4%}
             <a class="btn btn-mini btn-node-restart" data-instanceId="{{node.id}}"><i class="icon icon-refresh"></i></a>
+            {% if provider|lower != 'rackspace' and provider|lower != 'dfw' %}
             <a class="btn btn-mini btn-warning btn-node-stop" data-instanceId="{{node.id}}"><i class="icon icon-off"></i></a>
+            {% endif %}
             <a class="btn btn-mini btn-danger btn-node-destroy" data-instanceId="{{node.id}}"><i class="icon icon-trash icon-white"></i></a>
             {% endif %}
         </td>
