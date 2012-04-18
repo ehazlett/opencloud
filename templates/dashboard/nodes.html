@@ -11,7 +11,7 @@
         <td>{{node.private_ips[0]}}</td>
         {% if node.extra.status %}
         {% with status = node.extra.status %}
-        <td><span class="label {% if status == 'running' %}label-success{% endif %}">{{node.extra.status|capitalize}}</span></td>
+        <td class="center"><span class="label {% if status == 'running' %}label-success{% endif %}">{{node.extra.status|capitalize}}</span></td>
         {% endwith %}
         {% endif %}
         {% if node.extra.instanceId %}
@@ -23,8 +23,31 @@
         {% if node.extra.availability %}
         <td>{{node.extra.availability}}</td>
         {% endif %}
+        <td class="center">
+            <a class="btn btn-mini btn-node-restart" data-instanceId="{{node.id}}"><i class="icon icon-refresh"></i></a>
+            <a class="btn btn-mini btn-warning btn-node-stop" data-instanceId="{{node.id}}"><i class="icon icon-off"></i></a>
+            <a class="btn btn-mini btn-danger btn-node-destroy" data-instanceId="{{node.id}}"><i class="icon icon-trash icon-white"></i></a>
+        </td>
         </tr>
         {% endfor %}
+        <script type="text/javascript">
+            $("a.btn-node-restart").click(function(){
+                if (confirm("{{_('Are you sure you want to restart the node?')}}")) {
+                    location.href = '/dashboard/nodes/' + $(this).attr('data-instanceId') + '/reboot';
+                    return;
+                }
+            });
+            $("a.btn-node-stop").click(function(){
+                if (confirm("{{_('Are you sure you want to stop the node?')}}")) {
+                    alert('Stopping ' + $(this).attr('data-instanceId'));
+                }
+            });
+            $("a.btn-node-destroy").click(function(){
+                if (confirm("{{_('Are you sure you want to destroy the node?')}}")) {
+                    alert('Destroying ' + $(this).attr('data-instanceId'));
+                }
+            });
+        </script>
     {% else %}
     <tr>
         <td>{{_('There are no nodes in this location')}}</td>

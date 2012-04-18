@@ -20,7 +20,26 @@ from utils import cloud
 
 bp = dashboard_blueprint = Blueprint('dashboard', __name__)
 
+def get_provider_info():
+    data = {}
+    org = request.args.get('organization', session.get('default_organization'))
+    org_data = current_app.config.get('APP_CONFIG').get('organizations').get(org)
+    provider = None
+    provider_id = None
+    provider_key = None
+    if org_data:
+        provider = request.args.get('provider', org_data.get('provider'))
+        provider_id = org_data.get('provider_id')
+        provider_key = org_data.get('provider_key')
+    data.update(
+        provider = provider,
+        provider_id = provider_id,
+        provider_key = provider_key
+    )
+    return data
+    
 @bp.route('/')
+@login_required
 def index():
     regions = []
     org_data = current_app.config.get('APP_CONFIG').get('organizations').get(session.get('default_organization'))
@@ -33,16 +52,17 @@ def index():
     return render_template('dashboard/index.html', **ctx)
     
 @bp.route('/nodes/')
+@login_required
 def nodes():
     org = request.args.get('organization', session.get('default_organization'))
-    org_data = current_app.config.get('APP_CONFIG').get('organizations').get(org)
     provider = None
     regions = None
     nodes = None
-    if org_data:
-        provider = request.args.get('provider', org_data.get('provider'))
-        provider_id = org_data.get('provider_id')
-        provider_key = org_data.get('provider_key')
+    provider_info = get_provider_info()
+    if provider_info.get('provider'):
+        provider = provider_info.get('provider')
+        provider_id = provider_info.get('provider_id')
+        provider_key = provider_info.get('provider_key')
         regions = current_app.config.get('REGIONS').get(provider)
         nodes = cloud.get_nodes(provider, provider_id, provider_key)
     ctx = {
@@ -51,3 +71,18 @@ def nodes():
         'nodes': nodes,
     }
     return render_template('dashboard/nodes.html', **ctx)
+
+@bp.route('/nodes/<node_id>/reboot')
+@login_required
+def node_reboot(node_id=None):
+    org = request.args.get('organization', session.get('default_organization'))
+    provider_info = get_provider_info()
+    if provider_info.get('provider'):
+        provider = provider_info.get('provider')
+        provider_id = provider_info.get('provider_id')
+        provider_key = provider_info.get('provider_key')
+        cloud.reboot_node(provider, provider_id, provider_key, node_id)
+        flash(messages.INSTANCE_REBOOTED)
+    return redirect(url_for('dashboard.index'))
+        
+        

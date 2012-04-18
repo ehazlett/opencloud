@@ -14,18 +14,37 @@
 #    limitations under the License.
 import application
 import unittest
+from test_helpers import create_user, delete_user
 
 class TestDashboard(unittest.TestCase):
     def setUp(self):
         self.app = application.app.test_client()
+        self.test_user_username = 'testuser'
+        self.test_user_password = '1q2w3e'
+        # disable csrf for flask-wtf posts
+        application.app.config['CSRF_ENABLED'] = False
+        # create test user
+        create_user(self.test_user_username, '', self.test_user_password)
+        # login user
+        self.login()
 
     def tearDown(self):
-        pass
+        self.app.get('/accounts/logout/')
+        delete_user(self.test_user_username)
+
+    def login(self):
+        rv = self.app.post('/accounts/login/', data={
+            'username': self.test_user_username,
+            'password': self.test_user_password,
+        }, follow_redirects=True)
+        return rv
 
     def test_index_status_200(self):
+        self.login()
         rv = self.app.get('/dashboard/')
         self.assertEqual(rv.status_code, 200)
         
     def test_nodes_status_200(self):
+        self.login()
         rv = self.app.get('/dashboard/nodes/')
         self.assertEqual(rv.status_code, 200)

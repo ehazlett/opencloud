@@ -12,13 +12,23 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-from flaskext.babel import gettext
+from accounts.models import User
+from accounts.views import login, logout
 
-ACCESS_DENIED = gettext('Access denied.')
-ACCOUNT_UPDATED = gettext('Account updated.')
-INSTANCE_REBOOTED = gettext('Instance rebooted')
-INVALID_API_KEY = gettext('Invalid API key')
-INVALID_USERNAME_OR_PASSWORD = gettext('Invalid username/password')
-LOGGED_IN = gettext('Welcome back...!')
-LOGGED_OUT = gettext('You have been logged out.')
-NO_API_KEY = gettext('No API key specified')
+def create_user(username=None, email=None, password=None):
+    u = User()
+    u.username = username
+    u.email = email
+    u.set_password(password)
+    u.save()
+    return True
+    
+def delete_user(username=None):
+    u = User.get_by_username(username)
+    ret_val = False
+    if u:
+        u.remove()
+        ret_val = True
+    return ret_val
+
+        

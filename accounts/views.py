@@ -42,7 +42,6 @@ def login():
             if utils.hash_password(form.password.data) == user.password:
                 login_user(user)
                 session['user'] = user
-                session['current_state'] = user.state
                 return redirect(request.args.get("next") or url_for("index"))
         flash(messages.INVALID_USERNAME_OR_PASSWORD, 'error')
     ctx = {

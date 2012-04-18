@@ -14,11 +14,17 @@
 #    limitations under the License.
 import application
 import unittest
-from accounts.models import username_validator
+from accounts.models import username_validator, User
+from test_helpers import create_user, delete_user
 
 class TestAccounts(unittest.TestCase):
     def setUp(self):
         self.app = application.app.test_client()
+        self.test_user_username = 'testsampleuser'
+        self.test_user_email = 'sample@opencloud'
+        self.test_user_password = 'test123'
+        # disable csrf for flask-wtf posts
+        application.app.config['CSRF_ENABLED'] = False
 
     def tearDown(self):
         pass
@@ -34,3 +40,11 @@ class TestAccounts(unittest.TestCase):
     def test_username_validator_invalid_username(self):
         username = 's@#mpl3'
         self.assertFalse(username_validator(username))
+        
+    def test_create_delete_user(self):
+        username = self.test_user_username
+        email = self.test_user_email
+        password = self.test_user_password
+        self.assertTrue(create_user(username, email, password))
+        self.assertTrue(User.get_by_username(self.test_user_username))
+        self.assertTrue(delete_user(username))

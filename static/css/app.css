@@ -4,6 +4,9 @@ body {
 }
 .content {
 }
+.hide {
+  display: none;
+}
 .alert {
   position: fixed;
   overflow: visible;
@@ -41,5 +44,8 @@ select#current-organization {
 }
 div.loader {
   margin: 0 auto 0 auto;
+  text-align: center;
+}
+td.center {
   text-align: center;
 }

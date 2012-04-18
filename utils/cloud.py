@@ -45,17 +45,36 @@ def _get_connection(provider=None, id=None, key=None):
     conn = driver(id, key)
     return conn
     
-def get_nodes(provider=None, id=None, key=None):
+def get_nodes(provider=None, id=None, key=None, node_ids=None):
     """
     List all nodes for the specified provider
     
     :param provider: Name of provider (i.e. ec2)
     :param id: Provider ID 
     :param key: Provider Key
+    :param node_ids: List of node IDs to filter
     
     :rtype: `list` of nodes
     
     """
     log = logging.getLogger(__name__)
+    log.debug('Getting list of nodes for {0}'.format(provider))
     conn = _get_connection(provider, id, key)
-    return conn.list_nodes()
+    return conn.list_nodes(node_ids)
+    
+def reboot_node(provider=None, id=None, key=None, node_id=None):
+    """
+    Reboots an instance
+
+    :param provider: Name of provider (i.e. ec2)
+    :param id: Provider ID 
+    :param key: Provider Key
+    :param node_id: ID of the node to restart
+    
+    """
+    log = logging.getLogger(__name__)
+    log.debug('Restarting instance {0}'.format(node_id))
+    node = get_nodes(provider, id, key, [node_id])[0]
+    return node.reboot()
+
+    

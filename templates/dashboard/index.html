@@ -1,11 +1,20 @@
 {% extends "base.html" %}
 {% block page_header_toolbar %}
 {% if regions %}
-<a href="#modal-launch-server" class="btn btn-small btn-primary" data-toggle="modal">{{_('Launch Server')}}</a>
+<a id="btn-launch-server" class="btn btn-small btn-primary" data-toggle="modal" href="#modal-launch-server" >{{_('Launch Node')}}</a>
 {% endif %}
 {% endblock %}
 {% block main_content %}
-
+<div id="modal-launch-server" class="modal hide">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>{{_('Launch Node')}}</h3>
+  </div>
+  <div class="modal-body">
+  </div>
+  <div class="modal-footer">
+  </div>
+</div>
 {% if regions %}
 <ul class="nav nav-tabs">
     {% for region in regions %}
@@ -35,6 +44,9 @@
         $("#tab-content-servers").load("{{url_for('dashboard.nodes')}}" + query);  
     };
     $(function(){
+        $("#btn-launch-server").click(function(){
+            $("#modal-launch-server").modal('toggle');
+        });
         $(".tab").click(function(){
             $("#tab-content-servers").html('<div style="margin: 0 auto 0 auto; text-align: center;"><img src="{{url_for('static', filename="img/loader_64.gif")}}"/></div>');
             var provider = $(this).attr('data-provider');
