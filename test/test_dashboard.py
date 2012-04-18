@@ -22,10 +22,10 @@ class TestDashboard(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_index(self):
+    def test_index_status_200(self):
         rv = self.app.get('/dashboard/')
         self.assertEqual(rv.status_code, 200)
         
-    def test_nodes(self):
+    def test_nodes_status_200(self):
         rv = self.app.get('/dashboard/nodes/')
         self.assertEqual(rv.status_code, 200)

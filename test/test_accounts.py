@@ -14,6 +14,7 @@
 #    limitations under the License.
 import application
 import unittest
+from accounts.models import username_validator
 
 class TestAccounts(unittest.TestCase):
     def setUp(self):
@@ -22,6 +23,14 @@ class TestAccounts(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_login(self):
+    def test_login_status_200(self):
         rv = self.app.get('/accounts/login/')
         self.assertEqual(rv.status_code, 200)
+        
+    def test_username_validator_valid_username(self):
+        username = 'sampleuser'
+        self.assertTrue(username_validator(username))
+        
+    def test_username_validator_invalid_username(self):
+        username = 's@#mpl3'
+        self.assertFalse(username_validator(username))

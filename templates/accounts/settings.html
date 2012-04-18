@@ -2,8 +2,8 @@
 {% from "_helpers.html" import render_field %}
 
 {% block base_content %}
-<div class="container content">
-  <div class="row-fluid">
+<div class="container">
+<div class="span5 offset3 content">
     <form id="form-account" class="form-horizontal well" method="POST">
       <fieldset>
         {% for field in form %}
@@ -15,9 +15,8 @@
         <a href="{{url_for('index')}}" class="btn">{{_('Cancel')}}</a>
       </div>
     </form>
-  </div>
 </div>
-
+</div>
 <script type="text/javascript">
   $("#form-save").click(function(){
     $("#form-save").submit();
