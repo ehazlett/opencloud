@@ -75,6 +75,44 @@ def reboot_node(provider=None, id=None, key=None, node_id=None):
     log = logging.getLogger(__name__)
     log.debug('Restarting instance {0}'.format(node_id))
     node = get_nodes(provider, id, key, [node_id])[0]
-    return node.reboot()
+    ret_val = None
+    # check if node is stopped ; run start instead of reboot
+    if provider == 'ec2' and node.state == 4:
+        ret_val = node.driver.ex_start_node(node)
+    else:
+        ret_val = node.reboot()
+    return ret_val
 
-    
+def stop_node(provider=None, id=None, key=None, node_id=None):
+    """
+    Stops an instance
+
+    :param provider: Name of provider (i.e. ec2)
+    :param id: Provider ID 
+    :param key: Provider Key
+    :param node_id: ID of the node to restart
+
+    """
+    log = logging.getLogger(__name__)
+    log.debug('Stopping instance {0}'.format(node_id))
+    node = get_nodes(provider, id, key, [node_id])[0]
+    ret_val = False
+    # only ec2 can 'stop' nodes
+    if provider == 'ec2':
+        ret_val = node.driver.ex_stop_node(node)
+    return ret_val
+
+def destroy_node(provider=None, id=None, key=None, node_id=None):
+    """
+    Destroys an instance
+
+    :param provider: Name of provider (i.e. ec2)
+    :param id: Provider ID 
+    :param key: Provider Key
+    :param node_id: ID of the node to restart
+
+    """
+    log = logging.getLogger(__name__)
+    log.debug('Destroying instance {0}'.format(node_id))
+    node = get_nodes(provider, id, key, [node_id])[0]
+    return node.destroy()

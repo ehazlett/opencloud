@@ -84,5 +84,29 @@ def node_reboot(node_id=None):
         cloud.reboot_node(provider, provider_id, provider_key, node_id)
         flash(messages.INSTANCE_REBOOTED)
     return redirect(url_for('dashboard.index'))
-        
-        
+
+@bp.route('/nodes/<node_id>/stop')
+@login_required
+def node_stop(node_id=None):
+    org = request.args.get('organization', session.get('default_organization'))
+    provider_info = get_provider_info()
+    if provider_info.get('provider'):
+        provider = provider_info.get('provider')
+        provider_id = provider_info.get('provider_id')
+        provider_key = provider_info.get('provider_key')
+        if cloud.stop_node(provider, provider_id, provider_key, node_id):
+            flash(messages.INSTANCE_STOPPED)
+    return redirect(url_for('dashboard.index'))   
+ 
+@bp.route('/nodes/<node_id>/destroy')
+@login_required
+def node_destroy(node_id=None):
+    org = request.args.get('organization', session.get('default_organization'))
+    provider_info = get_provider_info()
+    if provider_info.get('provider'):
+        provider = provider_info.get('provider')
+        provider_id = provider_info.get('provider_id')
+        provider_key = provider_info.get('provider_key')
+        cloud.destroy_node(provider, provider_id, provider_key, node_id)
+        flash(messages.INSTANCE_DESTROYED)
+    return redirect(url_for('dashboard.index'))

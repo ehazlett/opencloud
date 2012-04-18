@@ -11,7 +11,7 @@
         <td>{{node.private_ips[0]}}</td>
         {% if node.extra.status %}
         {% with status = node.extra.status %}
-        <td class="center"><span class="label {% if status == 'running' %}label-success{% endif %}">{{node.extra.status|capitalize}}</span></td>
+        <td class="center"><span class="label {% if status == 'running' %}label-success{% elif status == 'shutting-down' %}label-important{% elif status == 'pending' %}label-info{% elif status == 'terminated' %}label-inverse{% endif %}">{{node.extra.status|capitalize}}</span></td>
         {% endwith %}
         {% endif %}
         {% if node.extra.instanceId %}
@@ -24,9 +24,11 @@
         <td>{{node.extra.availability}}</td>
         {% endif %}
         <td class="center">
+            {% if node.extra.status != 'terminated' and node.extra.status != 'shutting-down' %}
             <a class="btn btn-mini btn-node-restart" data-instanceId="{{node.id}}"><i class="icon icon-refresh"></i></a>
             <a class="btn btn-mini btn-warning btn-node-stop" data-instanceId="{{node.id}}"><i class="icon icon-off"></i></a>
             <a class="btn btn-mini btn-danger btn-node-destroy" data-instanceId="{{node.id}}"><i class="icon icon-trash icon-white"></i></a>
+            {% endif %}
         </td>
         </tr>
         {% endfor %}
@@ -39,12 +41,14 @@
             });
             $("a.btn-node-stop").click(function(){
                 if (confirm("{{_('Are you sure you want to stop the node?')}}")) {
-                    alert('Stopping ' + $(this).attr('data-instanceId'));
+                    location.href = '/dashboard/nodes/' + $(this).attr('data-instanceId') + '/stop';
+                    return;
                 }
             });
             $("a.btn-node-destroy").click(function(){
                 if (confirm("{{_('Are you sure you want to destroy the node?')}}")) {
-                    alert('Destroying ' + $(this).attr('data-instanceId'));
+                    location.href = '/dashboard/nodes/' + $(this).attr('data-instanceId') + '/destroy';
+                    return;
                 }
             });
         </script>
