@@ -20,15 +20,13 @@ from utils import cloud
 
 bp = dashboard_blueprint = Blueprint('dashboard', __name__)
 
-def get_provider_info():
+def get_provider_info(provider=None):
     data = {}
     org = request.args.get('organization', session.get('default_organization'))
     org_data = current_app.config.get('APP_CONFIG').get('organizations').get(org)
-    provider = None
     provider_id = None
     provider_key = None
     if org_data:
-        provider = request.args.get('provider', org_data.get('provider'))
         provider_id = org_data.get('provider_id')
         provider_key = org_data.get('provider_key')
     data.update(
@@ -47,66 +45,79 @@ def index():
         provider = org_data.get('provider')
         regions = current_app.config.get('REGIONS').get(provider)
     ctx = {
+        'provider': provider,
         'regions': regions,
     }
     return render_template('dashboard/index.html', **ctx)
     
-@bp.route('/nodes/')
+@bp.route('/nodes/<provider>/<region>/')
 @login_required
-def nodes():
+def nodes(provider=None, region=None):
     org = request.args.get('organization', session.get('default_organization'))
-    provider = None
+    nodes = None
+    provider_info = get_provider_info(provider)
+    if provider_info.get('provider'):
+        provider_id = provider_info.get('provider_id')
+        provider_key = provider_info.get('provider_key')
+        nodes = cloud.get_nodes(provider, region, provider_id, provider_key)
+    ctx = {
+        'provider': provider,
+        'region': region,
+        'nodes': nodes,
+    }
+    return render_template('dashboard/_nodes.html', **ctx)
+
+@bp.route('/nodes/<provider>/<region>/<node_id>/reboot')
+@login_required
+def node_reboot(provider=None, region=None, node_id=None):
+    org = request.args.get('organization', session.get('default_organization'))
+    provider_info = get_provider_info(provider)
+    if provider_info.get('provider'):
+        provider_id = provider_info.get('provider_id')
+        provider_key = provider_info.get('provider_key')
+        cloud.reboot_node(provider, region, provider_id, provider_key, node_id)
+        flash(messages.INSTANCE_REBOOTED)
+    return redirect(url_for('dashboard.index') + '#{0}'.format(region))
+
+@bp.route('/nodes/<provider>/<region>/<node_id>/stop')
+@login_required
+def node_stop(provider=None, region=None, node_id=None):
+    org = request.args.get('organization', session.get('default_organization'))
+    provider_info = get_provider_info(provider)
+    if provider_info.get('provider'):
+        provider_id = provider_info.get('provider_id')
+        provider_key = provider_info.get('provider_key')
+        if cloud.stop_node(provider, region, provider_id, provider_key, node_id):
+            flash(messages.INSTANCE_STOPPED)
+    return redirect(url_for('dashboard.index') + '#{0}'.format(region))
+ 
+@bp.route('/nodes/<provider>/<region>/<node_id>/destroy')
+@login_required
+def node_destroy(provider=None, region=None, node_id=None):
+    org = request.args.get('organization', session.get('default_organization'))
+    provider_info = get_provider_info(provider)
+    if provider_info.get('provider'):
+        provider_id = provider_info.get('provider_id')
+        provider_key = provider_info.get('provider_key')
+        cloud.destroy_node(provider, region, provider_id, provider_key, node_id)
+        flash(messages.INSTANCE_DESTROYED)
+    return redirect(url_for('dashboard.index') + '#{0}'.format(region))
+
+@bp.route('/nodes/<provider>/<region>/launch')
+@login_required
+def node_launch(provider=None, region=None):
+    org = request.args.get('organization', session.get('default_organization'))
     regions = None
     nodes = None
-    provider_info = get_provider_info()
+    provider_info = get_provider_info(provider)
     if provider_info.get('provider'):
-        provider = provider_info.get('provider')
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
         regions = current_app.config.get('REGIONS').get(provider)
-        nodes = cloud.get_nodes(provider, provider_id, provider_key)
     ctx = {
         'provider': provider,
         'regions': regions,
-        'nodes': nodes,
+        'images': cloud.get_images(provider, provider_id, provider_key),
+        'sizes': cloud.get_sizes(provider, provider_id, provider_key),
     }
-    return render_template('dashboard/nodes.html', **ctx)
-
-@bp.route('/nodes/<node_id>/reboot')
-@login_required
-def node_reboot(node_id=None):
-    org = request.args.get('organization', session.get('default_organization'))
-    provider_info = get_provider_info()
-    if provider_info.get('provider'):
-        provider = provider_info.get('provider')
-        provider_id = provider_info.get('provider_id')
-        provider_key = provider_info.get('provider_key')
-        cloud.reboot_node(provider, provider_id, provider_key, node_id)
-        flash(messages.INSTANCE_REBOOTED)
-    return redirect(url_for('dashboard.index'))
-
-@bp.route('/nodes/<node_id>/stop')
-@login_required
-def node_stop(node_id=None):
-    org = request.args.get('organization', session.get('default_organization'))
-    provider_info = get_provider_info()
-    if provider_info.get('provider'):
-        provider = provider_info.get('provider')
-        provider_id = provider_info.get('provider_id')
-        provider_key = provider_info.get('provider_key')
-        if cloud.stop_node(provider, provider_id, provider_key, node_id):
-            flash(messages.INSTANCE_STOPPED)
-    return redirect(url_for('dashboard.index'))   
- 
-@bp.route('/nodes/<node_id>/destroy')
-@login_required
-def node_destroy(node_id=None):
-    org = request.args.get('organization', session.get('default_organization'))
-    provider_info = get_provider_info()
-    if provider_info.get('provider'):
-        provider = provider_info.get('provider')
-        provider_id = provider_info.get('provider_id')
-        provider_key = provider_info.get('provider_key')
-        cloud.destroy_node(provider, provider_id, provider_key, node_id)
-        flash(messages.INSTANCE_DESTROYED)
-    return redirect(url_for('dashboard.index'))
+    return render_template('dashboard/_launch_server.html', **ctx)

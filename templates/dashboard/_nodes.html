@@ -25,11 +25,11 @@
         {% endif %}
         <td class="center">
             {% if node.state == 0 or node.state == 4%}
-            <a class="btn btn-mini btn-node-restart" data-instanceId="{{node.id}}"><i class="icon icon-refresh"></i></a>
-            {% if provider|lower != 'rackspace' and provider|lower != 'dfw' %}
-            <a class="btn btn-mini btn-warning btn-node-stop" data-instanceId="{{node.id}}"><i class="icon icon-off"></i></a>
+            <a class="btn btn-mini btn-node-restart" data-region="{{region}}" data-instanceId="{{node.id}}"><i class="icon icon-refresh"></i></a>
+            {% if provider|lower == 'ec2' %}
+            <a class="btn btn-mini btn-warning btn-node-stop" data-region="{{region}}" data-instanceId="{{node.id}}"><i class="icon icon-off"></i></a>
             {% endif %}
-            <a class="btn btn-mini btn-danger btn-node-destroy" data-instanceId="{{node.id}}"><i class="icon icon-trash icon-white"></i></a>
+            <a class="btn btn-mini btn-danger btn-node-destroy" data-region="{{region}}" data-instanceId="{{node.id}}"><i class="icon icon-trash icon-white"></i></a>
             {% endif %}
         </td>
         </tr>
@@ -37,19 +37,19 @@
         <script type="text/javascript">
             $("a.btn-node-restart").click(function(){
                 if (confirm("{{_('Are you sure you want to restart the node?')}}")) {
-                    location.href = '/dashboard/nodes/' + $(this).attr('data-instanceId') + '/reboot';
+                    location.href = '/dashboard/nodes/{{provider}}/{{region}}/' + $(this).attr('data-instanceId') + '/reboot';
                     return;
                 }
             });
             $("a.btn-node-stop").click(function(){
                 if (confirm("{{_('Are you sure you want to stop the node?')}}")) {
-                    location.href = '/dashboard/nodes/' + $(this).attr('data-instanceId') + '/stop';
+                    location.href = '/dashboard/nodes/{{provider}}/{{region}}/' + $(this).attr('data-instanceId') + '/stop';
                     return;
                 }
             });
             $("a.btn-node-destroy").click(function(){
                 if (confirm("{{_('Are you sure you want to destroy the node?')}}")) {
-                    location.href = '/dashboard/nodes/' + $(this).attr('data-instanceId') + '/destroy';
+                    location.href = '/dashboard/nodes/{{provider}}/{{region}}/' + $(this).attr('data-instanceId') + '/destroy';
                     return;
                 }
             });

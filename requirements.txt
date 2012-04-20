@@ -1,6 +1,7 @@
 Babel==0.9.6
 Flask==0.8
 Flask-Babel==0.8
+Flask-Cache==0.4.0
 Flask-Login==0.1
 Flask-MongoAlchemy==0.5.3
 Flask-WTF==0.6

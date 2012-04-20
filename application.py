@@ -23,7 +23,9 @@ from flask import g
 from flaskext.login import login_required
 from flaskext.login import LoginManager
 from flaskext.babel import Babel
+from flaskext.cache import Cache
 import config
+from utils import cloud
 from raven.contrib.flask import Sentry
 #from api.views import api_blueprint
 from accounts.views import accounts_blueprint
@@ -37,6 +39,7 @@ app = config.create_app()
 app.register_blueprint(accounts_blueprint, url_prefix='/accounts')
 app.register_blueprint(dashboard_blueprint, url_prefix='/dashboard')
 babel = Babel(app)
+cache = Cache(app)
 login_manager = LoginManager()
 login_manager.setup_app(app)
 

@@ -22,6 +22,7 @@ APP_VERSION = '0.1'
 API_KEYS = (
     'defaultapikey',
 )
+CACHE_TYPE = 'redis'
 LIBCLOUD_VERIFY_CERTS = False # defaults to false ; on mac os x with virtualenvs, cert checks fail
 LOCAL_CONFIG = 'config_local.json'
 MASTER_CONFIG = 'config.json'

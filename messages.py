@@ -17,7 +17,7 @@ from flaskext.babel import gettext
 ACCESS_DENIED = gettext('Access denied.')
 ACCOUNT_UPDATED = gettext('Account updated.')
 INSTANCE_DESTROYED = gettext('Instance destroyed')
-INSTANCE_REBOOTED = gettext('Instance rebooted')
+INSTANCE_REBOOTED = gettext('Instance restarted')
 INSTANCE_STOPPED = gettext('Instanced stopped')
 INVALID_API_KEY = gettext('Invalid API key')
 INVALID_USERNAME_OR_PASSWORD = gettext('Invalid username/password')

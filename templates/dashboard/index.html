@@ -6,20 +6,13 @@
 {% endblock %}
 {% block main_content %}
 <div id="modal-launch-server" class="modal hide">
-  <div class="modal-header">
-    <a class="close" data-dismiss="modal">×</a>
-    <h3>{{_('Launch Node')}}</h3>
-  </div>
-  <div class="modal-body">
-  </div>
-  <div class="modal-footer">
-  </div>
+  
 </div>
 {% if regions %}
 <ul class="nav nav-tabs">
     {% for region in regions %}
     <li {% if loop.first %}class="active"{% endif %}>
-      <a href="#tab-content-servers" class="tab" data-toggle="tab" data-provider='{{region.name}}'>{{region.name}}</a>
+      <a href="#tab-content-servers" class="tab" data-toggle="tab" data-provider='{{provider}}' data-region='{{region.name}}'>{{region.name}}</a>
     </li>
     {% endfor %}
 </ul>
@@ -38,24 +31,27 @@
     </div>
 </div>
 <script type="text/javascript">
-    function loadNodes(provider) {
+    function loadNodes(provider, region) {
         var org = $("#current-organization").val();
-        var query = provider ? '?provider=' + provider : '';
-        $("#tab-content-servers").load("{{url_for('dashboard.nodes')}}" + query);  
+        var region = region ? region : '';
+        $("#tab-content-servers").load("/dashboard/nodes/" + provider + '/' + region) + '/';
     };
     $(function(){
         $("#btn-launch-server").click(function(){
             $("#modal-launch-server").modal('toggle');
+            $("#modal-launch-server").load('/dashboard/nodes/launch', function(data){
+            });
         });
         $(".tab").click(function(){
             $("#tab-content-servers").html('<div style="margin: 0 auto 0 auto; text-align: center;"><img src="{{url_for('static', filename="img/loader_64.gif")}}"/></div>');
             var provider = $(this).attr('data-provider');
-            loadNodes(provider);
+            var region = $(this).attr('data-region');
+            loadNodes(provider, region);
         });
         $("select#current-organization").on('orgChange', function() {
             location.reload();
         });
-        loadNodes();
+        loadNodes('{{provider}}', $("ul.nav li.active a.tab").attr('data-region'));
     });
 </script>
 {% endblock %}

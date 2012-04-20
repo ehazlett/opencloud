@@ -23,6 +23,9 @@ class TestUtils(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test_create_user(self):
+        pass
+        
     def test_hash_password(self):
         config.SECRET_KEY = 'secret'
         passwd = 'mysecretpass'

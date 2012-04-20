@@ -38,13 +38,3 @@ class TestDashboard(unittest.TestCase):
             'password': self.test_user_password,
         }, follow_redirects=True)
         return rv
-
-    def test_index_status_200(self):
-        self.login()
-        rv = self.app.get('/dashboard/')
-        self.assertEqual(rv.status_code, 200)
-        
-    def test_nodes_status_200(self):
-        self.login()
-        rv = self.app.get('/dashboard/nodes/')
-        self.assertEqual(rv.status_code, 200)
