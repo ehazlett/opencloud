@@ -15,10 +15,14 @@
 from flask import Blueprint
 from flask import request, render_template, jsonify, g, flash, redirect, url_for, session, current_app
 from flaskext.login import login_required
+from flaskext.cache import Cache
 import messages
 from utils import cloud
+import config
 
 bp = dashboard_blueprint = Blueprint('dashboard', __name__)
+app = config.create_app()
+cache = Cache(app)
 
 def get_provider_info(provider=None):
     data = {}
@@ -41,6 +45,7 @@ def get_provider_info(provider=None):
 @login_required
 def index(region=None):
     regions = []
+    provider = None
     org_data = current_app.config.get('APP_CONFIG').get('organizations').get(session.get('default_organization'))
     if org_data:
         provider = org_data.get('provider')
@@ -109,17 +114,15 @@ def node_destroy(provider=None, region=None, node_id=None):
 @login_required
 def node_launch(provider=None, region=None):
     org = request.args.get('organization', session.get('default_organization'))
-    regions = None
     nodes = None
     provider_info = get_provider_info(provider)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
-        regions = current_app.config.get('REGIONS').get(provider)
     ctx = {
         'provider': provider,
-        'regions': regions,
-        'images': cloud.get_images(provider, provider_id, provider_key),
-        'sizes': cloud.get_sizes(provider, provider_id, provider_key),
+        'region': region,
+        'images': cloud.get_images(provider, region, provider_id, provider_key),
+        'sizes': cloud.get_sizes(provider, region, provider_id, provider_key),
     }
     return render_template('dashboard/_launch_server.html', **ctx)

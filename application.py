@@ -51,6 +51,15 @@ def user_loader(user_id):
 def login_unauthorized():
     return redirect(url_for('accounts.login'))
 
+# ----- template filters
+@app.template_filter('format_image_size')
+def format_image_size(size, provider):
+    sizes = {
+        'ec2': size.get('id', 'n/a'),
+    }
+    return sizes.get(provider, size.get('name', 'n/a'))
+# ----- end filters
+
 @app.route('/')
 @login_required
 def index():

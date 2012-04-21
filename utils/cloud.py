@@ -49,19 +49,19 @@ def _get_connection(provider=None, region=None, id=None, key=None):
     driver = get_driver(regions[region.lower()])
     conn = driver(id, key)
     return conn
-    
+
 def get_nodes(provider=None, region=None, id=None, key=None, node_ids=None):
     """
     List all nodes for the specified provider
-    
+
     :param provider: Name of provider (i.e. ec2)
     :param region: Name of region
     :param id: Provider ID 
     :param key: Provider Key
     :param node_ids: List of node IDs to filter
-    
+
     :rtype: `list` of nodes
-    
+
     """
     log = logging.getLogger(__name__)
     log.debug('Getting list of nodes for {0}'.format(provider))
@@ -74,7 +74,7 @@ def get_nodes(provider=None, region=None, id=None, key=None, node_ids=None):
     else:
         nodes = conn.list_nodes()
     return nodes
-    
+
 def reboot_node(provider=None, region=None, id=None, key=None, node_id=None):
     """
     Reboots an instance
@@ -136,7 +136,6 @@ def destroy_node(provider=None, region=None, id=None, key=None, node_id=None):
 def _get_ec2_images(region=None, id=None, key=None):
     """
     Gets all Amazon EC2 images
-    This is cached on app startup
     
     :param region: Name of region
     :param id: Provider ID 
@@ -147,14 +146,13 @@ def _get_ec2_images(region=None, id=None, key=None):
     """
     conn = _get_connection('ec2', region, id, key)
     images = []
-    [images.append({'name': x.name, 'id': x.id}) for x in conn.list_images()]
+    [images.append({'name': x.name, 'id': x.id}) for x in conn.list_images(region)]
     return images
 
 @cache.memoize(3600)
 def _get_rackspace_images(region=None, id=None, key=None):
     """
     Gets all Rackspace images
-    This is cached on app startup
 
     :param region: Name of region
     :param id: Provider ID 
@@ -202,5 +200,42 @@ def get_sizes(provider=None, region=None, id=None, key=None):
     """
     log = logging.getLogger(__name__)
     log.debug('Getting list of sizes for {0}'.format(provider))
-    conn = _get_connection(provider, region, id, key)
-    return conn.list_sizes()
+    sizes = {
+        'ec2': _get_ec2_sizes,
+        'rackspace': _get_rackspace_sizes,
+    }
+    return sizes[provider](region, id, key)
+
+@cache.memoize(3600)
+def _get_ec2_sizes(region=None, id=None, key=None):
+    """
+    Gets all EC2 sizes
+
+    :param region: Name of region
+    :param id: Provider ID 
+    :param key: Provider Key
+
+    :rtype: `list` of images
+
+    """
+    conn = _get_connection('ec2', region, id, key)
+    sizes = []
+    [sizes.append({'name': x.name, 'id': x.id}) for x in conn.list_sizes()]
+    return sizes
+
+@cache.memoize(3600)
+def _get_rackspace_sizes(region=None, id=None, key=None):
+    """
+    Gets all Rackspace sizes
+
+    :param region: Name of region
+    :param id: Provider ID 
+    :param key: Provider Key
+
+    :rtype: `list` of images
+
+    """
+    conn = _get_connection('rackspace', region, id, key)
+    sizes = []
+    [sizes.append({'name': x.name, 'id': x.id}) for x in conn.list_sizes()]
+    return sizes

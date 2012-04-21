@@ -37,8 +37,9 @@
     };
     $(function(){
         $("#btn-launch-server").click(function(){
+            var region = $("ul.nav li.active a.tab").attr('data-region');
             $("#modal-launch-server").modal('toggle');
-            $("#modal-launch-server").load('/dashboard/nodes/launch', function(data){
+            $("#modal-launch-server").load('/dashboard/nodes/{{provider}}/' + region + '/launch', function(data){
             });
         });
         $(".tab").click(function(){
