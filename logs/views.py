@@ -29,9 +29,9 @@ def index():
     if query:
         regex = re.compile(r'{0}'.format(re.escape(query), re.IGNORECASE))
         results = Log.query.filter({ '$or': \
-            [{'name': regex}, {'message': regex}]}).paginate(page, count, error_out=False)
+            [{'name': regex}, {'message': regex}]}).descending('date').paginate(page, count, error_out=False).sort()
     else:
-        results = Log.query.paginate(page, count, error_out=False)
+        results = Log.query.descending('date').paginate(page, count, error_out=False)
     ctx = {
         'logs': results,
         'search_query': query,
