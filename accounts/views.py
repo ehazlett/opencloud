@@ -93,9 +93,9 @@ def logout():
     Logs out current user
     
     """
+    current_app.logger.info('{0} logout from {1}'.format(session['user'].username, request.remote_addr))
     session.pop('user')
     logout_user()
     flash(messages.LOGGED_OUT)
-    current_app.logger.info('{0} logout from {1}'.format(form.username.data, request.remote_addr))
     return redirect(url_for('index'))
 
