@@ -15,6 +15,9 @@ body {
   right: 0;
   z-index: 999;
 }
+.btn-fill {
+  width: 100%;
+}
 div#login {
   width: 425px;
   margin: 0 auto 0 auto;
