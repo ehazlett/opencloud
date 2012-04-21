@@ -30,7 +30,9 @@ from raven.contrib.flask import Sentry
 #from api.views import api_blueprint
 from accounts.views import accounts_blueprint
 from dashboard.views import dashboard_blueprint
+from logs.views import logs_blueprint
 from accounts.models import User
+from utils.logger import MongoDBHandler
 
 sentry = Sentry(config.SENTRY_DSN)
 
@@ -38,10 +40,16 @@ app = config.create_app()
 #app.register_blueprint(api_blueprint, url_prefix='/api')
 app.register_blueprint(accounts_blueprint, url_prefix='/accounts')
 app.register_blueprint(dashboard_blueprint, url_prefix='/dashboard')
+app.register_blueprint(logs_blueprint, url_prefix='/logs')
 babel = Babel(app)
 cache = Cache(app)
 login_manager = LoginManager()
 login_manager.setup_app(app)
+
+# mongodb handler
+mongodb_handler = MongoDBHandler()
+mongodb_handler.setLevel(app.config.get('LOG_LEVEL'))
+app.logger.addHandler(mongodb_handler)
 
 @login_manager.user_loader
 def user_loader(user_id):
@@ -50,6 +58,26 @@ def user_loader(user_id):
 @login_manager.unauthorized_handler
 def login_unauthorized():
     return redirect(url_for('accounts.login'))
+
+# ----- template filters
+@app.template_filter('format_image_size')
+def format_image_size(size, provider):
+    sizes = {
+        'ec2': size.get('id', 'n/a'),
+    }
+    return sizes.get(provider, size.get('name', 'n/a'))
+    
+@app.template_filter('log_level_name')
+def log_level_name(level):
+    levels = {
+        10: 'debug',
+        20: 'info',
+        30: 'warn',
+        40: 'error',
+        50: 'critical',
+    }
+    return levels.get(level, 'unknown')
+# ----- end filters
 
 @app.route('/')
 @login_required

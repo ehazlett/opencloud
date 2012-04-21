@@ -15,6 +15,7 @@
 import os
 from flask import Flask
 from flask import json
+import logging
 
 APP_CONFIG = {}
 APP_NAME = 'OpenCloud'
@@ -22,15 +23,16 @@ APP_VERSION = '0.1'
 API_KEYS = (
     'defaultapikey',
 )
-CACHE_TYPE = 'redis'
+CACHE_TYPE = 'simple'
 LIBCLOUD_VERIFY_CERTS = False # defaults to false ; on mac os x with virtualenvs, cert checks fail
+LOG_LEVEL = logging.DEBUG
 LOCAL_CONFIG = 'config_local.json'
 MASTER_CONFIG = 'config.json'
 # mongodb settings
 MONGOALCHEMY_DATABASE = 'opencloud'
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
-REDIS_DB = 12
+REDIS_DB = 1
 REDIS_EVENT_CHANNEL = 'opencloud'
 SENTRY_DSN = None
 SECRET_KEY='1q2w3e4r5t6y7u8i9o0p'

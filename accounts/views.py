@@ -42,7 +42,9 @@ def login():
             if utils.hash_password(form.password.data) == user.password:
                 login_user(user)
                 session['user'] = user
+                current_app.logger.info('User {0} login from {1}'.format(user.username, request.remote_addr))
                 return redirect(request.args.get("next") or url_for("index"))
+        current_app.logger.warn('Invalid login for {0} from {1}'.format(form.username.data, request.remote_addr))
         flash(messages.INVALID_USERNAME_OR_PASSWORD, 'error')
     ctx = {
         'form': form,
@@ -94,5 +96,6 @@ def logout():
     session.pop('user')
     logout_user()
     flash(messages.LOGGED_OUT)
+    current_app.logger.info('{0} logout from {1}'.format(form.username.data, request.remote_addr))
     return redirect(url_for('index'))
 

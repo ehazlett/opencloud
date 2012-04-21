@@ -13,11 +13,26 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 import config
+from uuid import uuid4
+import logging
+from datetime import datetime
+from logs.models import Log
 
-BROKER_URL = "redis://{0}:{1}/{2}".format(config.REDIS_HOST, config.REDIS_PORT, config.REDIS_DB)
-CELERY_RESULT_BACKEND = "redis"
-CELERY_REDIS_HOST = config.REDIS_HOST
-CELERY_REDIS_PORT = config.REDIS_PORT
-CELERY_REDIS_DB = config.REDIS_DB
-CELERY_IMPORTS = ('utils.cloud',)
-CELERY_TASK_RESULT_EXPIRES = 86400
+class MongoDBHandler(logging.Handler):
+    def __init__(self):
+        logging.Handler.__init__(self)
+
+    def emit(self, msg):
+        log = Log()
+        log.level = msg.levelno
+        log.name = msg.name
+        log.message = msg.msg
+        log.save()
+        
+def get_logger(name=''):
+    log = logging.getLogger(name)
+    log.setLevel(config.LOG_LEVEL)
+    mongodb_handler = MongoDBHandler()
+    mongodb_handler.setLevel(config.LOG_LEVEL)
+    log.addHandler(mongodb_handler)
+    return log

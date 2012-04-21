@@ -12,12 +12,19 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-import config
+from flaskext.mongoalchemy import MongoAlchemy
+from config import create_app
+from uuid import uuid4
+from datetime import datetime
 
-BROKER_URL = "redis://{0}:{1}/{2}".format(config.REDIS_HOST, config.REDIS_PORT, config.REDIS_DB)
-CELERY_RESULT_BACKEND = "redis"
-CELERY_REDIS_HOST = config.REDIS_HOST
-CELERY_REDIS_PORT = config.REDIS_PORT
-CELERY_REDIS_DB = config.REDIS_DB
-CELERY_IMPORTS = ('utils.cloud',)
-CELERY_TASK_RESULT_EXPIRES = 86400
+app = create_app()
+db = MongoAlchemy(app)
+
+class Log(db.Document):
+    config_collection_name = 'logs'
+
+    uuid = db.StringField(default=str(uuid4()))
+    date = db.DateTimeField(default=datetime.now())
+    level = db.IntField()
+    name = db.StringField()
+    message = db.StringField()
