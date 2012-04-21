@@ -2,6 +2,7 @@
 {% block page_header_toolbar %}
 <input id="search-text" type="text" name="search" class="input-medium search-query" value="{% if search_query %}{{search_query}}{% endif %}"/>
 <a id="btn-search" href="#" class="btn">{{_('Go')}}</a>
+<a id="btn-clear-logs" href="#" class="btn btn-info">{{_('Clear')}}</a>
 {% endblock %}
 
 {% block main_content %}
@@ -41,6 +42,11 @@
 <script type="text/javascript">
     $(function(){
         $("li#nav-logs").addClass('active');
+        $("a#btn-clear-logs").click(function(){
+            if (confirm("{{_('Are you sure you want to remove all logs?')}}")) {
+                location.href = "{{url_for('logs.clear')}}";
+            }
+        });
         $("a#btn-search").click(function(){
             location.href = "{{url_for('logs.index')}}?search=" + $("input#search-text").val();
         });

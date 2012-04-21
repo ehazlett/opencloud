@@ -37,3 +37,9 @@ def index():
         'search_query': query,
     }
     return render_template('logs/index.html', **ctx)
+
+@bp.route('/clear/')
+@login_required
+def clear():
+    Log.clear()
+    return redirect(url_for('logs.index'))
