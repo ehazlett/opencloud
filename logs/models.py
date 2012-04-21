@@ -13,12 +13,11 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 from flaskext.mongoalchemy import MongoAlchemy
-import config
+from config import create_app
 from uuid import uuid4
-import logging
 from datetime import datetime
 
-app = config.create_app()
+app = create_app()
 db = MongoAlchemy(app)
 
 class Log(db.Document):
@@ -29,22 +28,3 @@ class Log(db.Document):
     level = db.IntField()
     name = db.StringField()
     message = db.StringField()
-
-class MongoDBHandler(logging.Handler):
-    def __init__(self):
-        logging.Handler.__init__(self)
-
-    def emit(self, msg):
-        log = Log()
-        log.level = msg.levelno
-        log.name = msg.name
-        log.message = msg.msg
-        log.save()
-        
-def get_logger(name=''):
-    log = logging.getLogger(name)
-    log.setLevel(config.LOG_LEVEL)
-    mongodb_handler = MongoDBHandler()
-    mongodb_handler.setLevel(config.LOG_LEVEL)
-    log.addHandler(mongodb_handler)
-    return log

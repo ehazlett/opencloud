@@ -18,7 +18,7 @@ from libcloud.compute.deployment import ScriptDeployment
 import libcloud.security
 from celery.task import task
 from flaskext.cache import Cache
-from utils.log import get_logger
+from utils.logger import get_logger
 import config
 
 libcloud.security.VERIFY_SSL_CERT = config.LIBCLOUD_VERIFY_CERTS
@@ -36,7 +36,6 @@ def _get_connection(provider=None, region=None, id=None, key=None):
     :param key: Provider Key
     
     """
-    log = get_logger(__name__)
     regions = {
         'ec2': Provider.EC2,
         'us-east-1': Provider.EC2_US_EAST,
@@ -64,8 +63,6 @@ def get_nodes(provider=None, region=None, id=None, key=None, node_ids=None):
     :rtype: `list` of nodes
 
     """
-    log = get_logger(__name__)
-    log.debug('Getting list of nodes for {0}'.format(provider))
     nodes = None
     if node_ids and not isinstance(node_ids, list):
         nodes_ids = [node_ids]
@@ -88,7 +85,7 @@ def reboot_node(provider=None, region=None, id=None, key=None, node_id=None):
     
     """
     log = get_logger(__name__)
-    log.debug('Restarting instance {0}'.format(node_id))
+    log.info('Restarting instance {0}'.format(node_id))
     node = get_nodes(provider, region, id, key, [node_id])[0]
     ret_val = None
     # check if node is stopped ; run start instead of reboot
@@ -110,7 +107,7 @@ def stop_node(provider=None, region=None, id=None, key=None, node_id=None):
 
     """
     log = get_logger(__name__)
-    log.debug('Stopping instance {0}'.format(node_id))
+    log.info('Stopping instance {0}'.format(node_id))
     node = get_nodes(provider, region, id, key, [node_id])[0]
     ret_val = False
     # only ec2 can 'stop' nodes
@@ -129,7 +126,7 @@ def destroy_node(provider=None, region=None, id=None, key=None, node_id=None):
 
     """
     log = get_logger(__name__)
-    log.debug('Destroying instance {0}'.format(node_id))
+    log.info('Destroying instance {0}'.format(node_id))
     node = get_nodes(provider, region, id, key, [node_id])[0]
     return node.destroy()
 
@@ -179,8 +176,6 @@ def get_images(provider=None, region=None, id=None, key=None):
     :rtype: `list` of images
 
     """
-    log = get_logger(__name__)
-    log.debug('Getting list of images for {0}'.format(provider))
     images = {
         'ec2': _get_ec2_images,
         'rackspace': _get_rackspace_images,
@@ -199,8 +194,6 @@ def get_sizes(provider=None, region=None, id=None, key=None):
     :rtype: `list` of sizes
 
     """
-    log = get_logger(__name__)
-    log.debug('Getting list of sizes for {0}'.format(provider))
     sizes = {
         'ec2': _get_ec2_sizes,
         'rackspace': _get_rackspace_sizes,

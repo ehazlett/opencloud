@@ -30,8 +30,9 @@ from raven.contrib.flask import Sentry
 #from api.views import api_blueprint
 from accounts.views import accounts_blueprint
 from dashboard.views import dashboard_blueprint
+from logs.views import logs_blueprint
 from accounts.models import User
-from utils.log import MongoDBHandler
+from utils.logger import MongoDBHandler
 
 sentry = Sentry(config.SENTRY_DSN)
 
@@ -39,6 +40,7 @@ app = config.create_app()
 #app.register_blueprint(api_blueprint, url_prefix='/api')
 app.register_blueprint(accounts_blueprint, url_prefix='/accounts')
 app.register_blueprint(dashboard_blueprint, url_prefix='/dashboard')
+app.register_blueprint(logs_blueprint, url_prefix='/logs')
 babel = Babel(app)
 cache = Cache(app)
 login_manager = LoginManager()
@@ -64,6 +66,17 @@ def format_image_size(size, provider):
         'ec2': size.get('id', 'n/a'),
     }
     return sizes.get(provider, size.get('name', 'n/a'))
+    
+@app.template_filter('log_level_name')
+def log_level_name(level):
+    levels = {
+        10: 'debug',
+        20: 'info',
+        30: 'warn',
+        40: 'error',
+        50: 'critical',
+    }
+    return levels.get(level, 'unknown')
 # ----- end filters
 
 @app.route('/')

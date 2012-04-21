@@ -39,8 +39,8 @@ def get_provider_info(provider=None):
         provider_key = provider_key
     )
     return data
-    
-@bp.route('/')    
+
+@bp.route('/')
 @bp.route('/<region>')
 @login_required
 def index(region=None):
@@ -56,7 +56,7 @@ def index(region=None):
         'region': region,
     }
     return render_template('dashboard/index.html', **ctx)
-    
+
 @bp.route('/nodes/<provider>/<region>/')
 @login_required
 def nodes(provider=None, region=None):

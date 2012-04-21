@@ -48,6 +48,7 @@
           <div class="nav-collapse">
             <ul class="nav">
               {% if session %}
+              <li id="nav-logs"><a href="{{url_for('logs.index')}}">{{_('logs')}}</a></li>
               {% endif %}
             </ul>
             <ul class="nav pull-right">
@@ -85,7 +86,7 @@
     {% block base_content %}
     <div class="container-fluid content">
       <div>
-        <div class="pull-right">{% block page_header_toolbar %}{% endblock %}</div>
+        <div class="pull-right page-header-toolbar">{% block page_header_toolbar %}{% endblock %}</div>
         <h1>{% block page_header %}{% endblock %}</h1>
       </div>
       {% block main_content %}{% endblock %}
