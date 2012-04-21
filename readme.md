@@ -8,6 +8,7 @@ Prerequisites:
 
 * Python 2.5+
 * MongoDB
+* Redis
 
 To setup OpenCloud, clone the repo and use the following (this assumes you are using virtualenvs with `virtualenvwrapper`):
 
@@ -15,6 +16,10 @@ To setup OpenCloud, clone the repo and use the following (this assumes you are u
 * `pip install -r requirements.txt`
 * `python application.py --create-user`
 * `python application.py`
+
+You will also need to start a `celery` worker:
+
+* `celeryd -l INFO`
 
 You should now be able to view the application on `http://localhost:5000`
 
