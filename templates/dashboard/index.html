@@ -6,13 +6,12 @@
 {% endblock %}
 {% block main_content %}
 <div id="modal-launch-server" class="modal hide">
-  
 </div>
 {% if regions %}
 <ul class="nav nav-tabs">
-    {% for region in regions %}
-    <li {% if loop.first %}class="active"{% endif %}>
-      <a href="#tab-content-servers" class="tab" data-toggle="tab" data-provider='{{provider}}' data-region='{{region.name}}'>{{region.name}}</a>
+    {% for r in regions %}
+    <li {% if region and r.name == region %}class="active"{% elif not region and loop.first %}class="active"{% endif %}>
+      <a href="#tab-content-servers" class="tab" data-toggle="tab" data-provider='{{provider}}' data-region='{{r.name}}'>{{r.name}}</a>
     </li>
     {% endfor %}
 </ul>

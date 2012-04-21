@@ -36,9 +36,10 @@ def get_provider_info(provider=None):
     )
     return data
     
-@bp.route('/')
+@bp.route('/')    
+@bp.route('/<region>')
 @login_required
-def index():
+def index(region=None):
     regions = []
     org_data = current_app.config.get('APP_CONFIG').get('organizations').get(session.get('default_organization'))
     if org_data:
@@ -47,6 +48,7 @@ def index():
     ctx = {
         'provider': provider,
         'regions': regions,
+        'region': region,
     }
     return render_template('dashboard/index.html', **ctx)
     
@@ -77,7 +79,7 @@ def node_reboot(provider=None, region=None, node_id=None):
         provider_key = provider_info.get('provider_key')
         cloud.reboot_node(provider, region, provider_id, provider_key, node_id)
         flash(messages.INSTANCE_REBOOTED)
-    return redirect(url_for('dashboard.index') + '#{0}'.format(region))
+    return redirect(url_for('dashboard.index', region=region))
 
 @bp.route('/nodes/<provider>/<region>/<node_id>/stop')
 @login_required
@@ -89,7 +91,7 @@ def node_stop(provider=None, region=None, node_id=None):
         provider_key = provider_info.get('provider_key')
         if cloud.stop_node(provider, region, provider_id, provider_key, node_id):
             flash(messages.INSTANCE_STOPPED)
-    return redirect(url_for('dashboard.index') + '#{0}'.format(region))
+    return redirect(url_for('dashboard.index', region=region))
  
 @bp.route('/nodes/<provider>/<region>/<node_id>/destroy')
 @login_required
@@ -101,7 +103,7 @@ def node_destroy(provider=None, region=None, node_id=None):
         provider_key = provider_info.get('provider_key')
         cloud.destroy_node(provider, region, provider_id, provider_key, node_id)
         flash(messages.INSTANCE_DESTROYED)
-    return redirect(url_for('dashboard.index') + '#{0}'.format(region))
+    return redirect(url_for('dashboard.index', region=region))
 
 @bp.route('/nodes/<provider>/<region>/launch')
 @login_required
