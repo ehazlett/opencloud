@@ -15,6 +15,7 @@
 import os
 from flask import Flask
 from flask import json
+import logging
 
 APP_CONFIG = {}
 APP_NAME = 'OpenCloud'
@@ -24,6 +25,7 @@ API_KEYS = (
 )
 CACHE_TYPE = 'simple'
 LIBCLOUD_VERIFY_CERTS = False # defaults to false ; on mac os x with virtualenvs, cert checks fail
+LOG_LEVEL = logging.DEBUG
 LOCAL_CONFIG = 'config_local.json'
 MASTER_CONFIG = 'config.json'
 # mongodb settings

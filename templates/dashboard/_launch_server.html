@@ -3,13 +3,13 @@
     <h3>{{_('Launch Node')}}</h3>
 </div>
 <div class="modal-body">
-    <form class="form-horizontal well" method="post">
+    <form id="launch-node" class="form-horizontal well" method="post" action="{{url_for('dashboard.node_launch', provider=provider, region=region)}}">
         <fieldset>
             <div class="control-group">
                 <label class="control-label" for="name">{{_('Name')}}</label>
                 <div class="controls">
                     <input type="hidden" name="region" value="{{region}}"/>
-                    <input type="text" name="name" value="" placeholder="{{_('instance name')}}" />
+                    <input type="text" name="name" value="" class="required" placeholder="{{_('instance name')}}" />
                 </div>
             </div>
             <div class="control-group">
@@ -22,7 +22,7 @@
                     {% endfor %}
                     </select>
                     {% else %}
-                    <input type="text" name="image" value="" placeholder="{{_('ami id')}}" />
+                    <input type="text" name="image" value="" class="required" placeholder="{{_('ami id')}}" />
                     {% endif %}
                 </div>
             </div>
@@ -41,5 +41,13 @@
 </div>
 <div class="modal-footer">
     <a href="#" class="btn btn-large" data-dismiss="modal">{{_('Cancel')}}</a>
-    <a href="#" class="btn btn-large btn-primary">{{_('Launch')}}</a>
+    <a id="btn-launch-node" href="#" class="btn btn-large btn-primary">{{_('Launch')}}</a>
 </div>
+<script type="text/javascript">
+    $(function(){
+        $("form#launch-node").validate();
+        $("a#btn-launch-node").click(function(){
+            $("form#launch-node").submit();
+        });
+    });
+</script>

@@ -10,8 +10,8 @@
 {% if regions %}
 <ul class="nav nav-tabs">
     {% for r in regions %}
-    <li {% if region and r.name == region %}class="active"{% elif not region and loop.first %}class="active"{% endif %}>
-      <a href="#tab-content-servers" class="tab" data-toggle="tab" data-provider='{{provider}}' data-region='{{r.name}}'>{{r.name}}</a>
+    <li {% if region and r == region %}class="active"{% elif not region and loop.first %}class="active"{% elif region not in regions and loop.first %}class="active"{% endif %}>
+      <a href="#tab-content-servers" class="tab" data-toggle="tab" data-provider='{{provider}}' data-region='{{r}}'>{{r}}</a>
     </li>
     {% endfor %}
 </ul>
@@ -49,7 +49,7 @@
             loadNodes(provider, region);
         });
         $("select#current-organization").on('orgChange', function() {
-            location.reload();
+            location.href = "{{url_for('dashboard.index')}}";
         });
         loadNodes('{{provider}}', $("ul.nav li.active a.tab").attr('data-region'));
     });

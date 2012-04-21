@@ -31,6 +31,7 @@ from raven.contrib.flask import Sentry
 from accounts.views import accounts_blueprint
 from dashboard.views import dashboard_blueprint
 from accounts.models import User
+from utils.log import MongoDBHandler
 
 sentry = Sentry(config.SENTRY_DSN)
 
@@ -42,6 +43,11 @@ babel = Babel(app)
 cache = Cache(app)
 login_manager = LoginManager()
 login_manager.setup_app(app)
+
+# mongodb handler
+mongodb_handler = MongoDBHandler()
+mongodb_handler.setLevel(app.config.get('LOG_LEVEL'))
+app.logger.addHandler(mongodb_handler)
 
 @login_manager.user_loader
 def user_loader(user_id):

@@ -16,8 +16,9 @@ from libcloud.compute.types import Provider
 from libcloud.compute.providers import get_driver
 from libcloud.compute.deployment import ScriptDeployment
 import libcloud.security
+from celery.task import task
 from flaskext.cache import Cache
-import logging
+from utils.log import get_logger
 import config
 
 libcloud.security.VERIFY_SSL_CERT = config.LIBCLOUD_VERIFY_CERTS
@@ -35,7 +36,7 @@ def _get_connection(provider=None, region=None, id=None, key=None):
     :param key: Provider Key
     
     """
-    log = logging.getLogger(__name__)
+    log = get_logger(__name__)
     regions = {
         'ec2': Provider.EC2,
         'us-east-1': Provider.EC2_US_EAST,
@@ -63,7 +64,7 @@ def get_nodes(provider=None, region=None, id=None, key=None, node_ids=None):
     :rtype: `list` of nodes
 
     """
-    log = logging.getLogger(__name__)
+    log = get_logger(__name__)
     log.debug('Getting list of nodes for {0}'.format(provider))
     nodes = None
     if node_ids and not isinstance(node_ids, list):
@@ -86,7 +87,7 @@ def reboot_node(provider=None, region=None, id=None, key=None, node_id=None):
     :param node_id: ID of the node to restart
     
     """
-    log = logging.getLogger(__name__)
+    log = get_logger(__name__)
     log.debug('Restarting instance {0}'.format(node_id))
     node = get_nodes(provider, region, id, key, [node_id])[0]
     ret_val = None
@@ -108,7 +109,7 @@ def stop_node(provider=None, region=None, id=None, key=None, node_id=None):
     :param node_id: ID of the node to restart
 
     """
-    log = logging.getLogger(__name__)
+    log = get_logger(__name__)
     log.debug('Stopping instance {0}'.format(node_id))
     node = get_nodes(provider, region, id, key, [node_id])[0]
     ret_val = False
@@ -127,7 +128,7 @@ def destroy_node(provider=None, region=None, id=None, key=None, node_id=None):
     :param node_id: ID of the node to restart
 
     """
-    log = logging.getLogger(__name__)
+    log = get_logger(__name__)
     log.debug('Destroying instance {0}'.format(node_id))
     node = get_nodes(provider, region, id, key, [node_id])[0]
     return node.destroy()
@@ -178,7 +179,7 @@ def get_images(provider=None, region=None, id=None, key=None):
     :rtype: `list` of images
 
     """
-    log = logging.getLogger(__name__)
+    log = get_logger(__name__)
     log.debug('Getting list of images for {0}'.format(provider))
     images = {
         'ec2': _get_ec2_images,
@@ -198,7 +199,7 @@ def get_sizes(provider=None, region=None, id=None, key=None):
     :rtype: `list` of sizes
 
     """
-    log = logging.getLogger(__name__)
+    log = get_logger(__name__)
     log.debug('Getting list of sizes for {0}'.format(provider))
     sizes = {
         'ec2': _get_ec2_sizes,
@@ -215,7 +216,7 @@ def _get_ec2_sizes(region=None, id=None, key=None):
     :param id: Provider ID 
     :param key: Provider Key
 
-    :rtype: `list` of images
+    :rtype: `list` of sizes
 
     """
     conn = _get_connection('ec2', region, id, key)
@@ -239,3 +240,36 @@ def _get_rackspace_sizes(region=None, id=None, key=None):
     sizes = []
     [sizes.append({'name': x.name, 'id': x.id}) for x in conn.list_sizes()]
     return sizes
+    
+@task
+def launch_node(provider=None, region=None, id=None, key=None, name=None, image_id=None, size_id=None):
+    """
+    Launches a new node for the specified provider
+
+    :param provider: Name of provider (i.e. ec2)
+    :param region: Name of region
+    :param id: Provider ID 
+    :param key: Provider Key
+    :param name: Name of instance
+    :param image_id: ID of image to use
+    :param size_id: ID of size to use
+
+    """
+    log = get_logger(__name__)
+    log.debug('Launching a new node in {0}, region {1}: Image: {2} Size: {3}'.format(provider, \
+        region, image_id, size_id))
+    conn = _get_connection(provider, region, id, key)
+    image = [x for x in conn.list_images() if x.id == image_id]
+    size = [x for x in conn.list_sizes() if x.id == size_id]
+    if image:
+        image = image[0]
+    if size:
+        size = size[0]
+    if not image or not size:
+        raise ValueError('Invalid image_id or size_id')
+    node = conn.create_node(name=name, image=image, size=size)
+    msg = "Node launched: {0} ({1}) in {2} region of {3} ; {4}".format(node.name, node.uuid, region, provider, \
+        node.extra)
+    log.info(msg)
+    return msg
+    

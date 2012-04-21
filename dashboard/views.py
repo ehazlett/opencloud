@@ -49,7 +49,7 @@ def index(region=None):
     org_data = current_app.config.get('APP_CONFIG').get('organizations').get(session.get('default_organization'))
     if org_data:
         provider = org_data.get('provider')
-        regions = current_app.config.get('REGIONS').get(provider)
+        regions = [x.get('name') for x in current_app.config.get('REGIONS').get(provider)]
     ctx = {
         'provider': provider,
         'regions': regions,
@@ -110,7 +110,7 @@ def node_destroy(provider=None, region=None, node_id=None):
         flash(messages.INSTANCE_DESTROYED)
     return redirect(url_for('dashboard.index', region=region))
 
-@bp.route('/nodes/<provider>/<region>/launch')
+@bp.route('/nodes/<provider>/<region>/launch', methods=['GET', 'POST'])
 @login_required
 def node_launch(provider=None, region=None):
     org = request.args.get('organization', session.get('default_organization'))
@@ -119,6 +119,17 @@ def node_launch(provider=None, region=None):
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
+    if request.method == 'POST':
+        node_name = request.form.get('name')
+        node_image_id = request.form.get('image')
+        node_size_id = request.form.get('size')
+        try:
+            cloud.launch_node.delay(provider, region, provider_id, provider_key, node_name, \
+                node_image_id, node_size_id)
+            flash(messages.INSTANCE_LAUNCHED)
+        except Exception, e:
+            flash(e, 'error')
+        return redirect(url_for('dashboard.index', region=region))
     ctx = {
         'provider': provider,
         'region': region,
