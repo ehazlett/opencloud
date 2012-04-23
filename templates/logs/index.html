@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 {% block page_header_toolbar %}
+{% if logs.items %}
 <input id="search-text" type="text" name="search" class="input-medium search-query" value="{% if search_query %}{{search_query}}{% endif %}"/>
 <a id="btn-search" href="#" class="btn">{{_('Go')}}</a>
 <a id="btn-clear-logs" href="#" class="btn btn-info">{{_('Clear')}}</a>
+{% endif %}
 {% endblock %}
 
 {% block main_content %}
+{% if logs.items %}
 <table class="table table-striped table-bordered">
     <tr>
         <th>{{_('Date')}}</th>
@@ -13,24 +16,22 @@
         <th>{{_('Level')}}</th>
         <th>{{_('Message')}}</th>
     </tr>
-    {% if logs %}
-        {% for log in logs.items %}
-        <tr>
-            <td width="20%">{{log.date}}</td>
-            <td>{{log.name}}</td>
-            <td>
-                <span class="label label-{% if log.level == 20 %}info{% elif log.level == 30 %}warning{% elif log.level == 40 %}important{% elif log.level == 50 %}inverse{% else %}default{% endif %}">{{log.level|log_level_name}}</span>
-            </td>
-            <td>{{log.message}}</td>
-        </tr>
-        {% endfor %}
-    
-    {% else %}
+    {% for log in logs.items %}
     <tr>
-        <td>{{_('There are no logs')}}</td>
+        <td width="20%">{{log.date}}</td>
+        <td>{{log.name}}</td>
+        <td>
+            <span class="label label-{% if log.level == 20 %}info{% elif log.level == 30 %}warning{% elif log.level == 40 %}important{% elif log.level == 50 %}inverse{% else %}default{% endif %}">{{log.level|log_level_name}}</span>
+        </td>
+        <td>{{log.message}}</td>
     </tr>
-    {% endif %}
+    {% endfor %}
 </table>
+{% else %}
+<span class="info-large">{{_('There are no logs')}}</span>
+{% endif %}
+
+{% if logs.items %}
 <ul class="pager">
     <li class="previous{% if not logs.has_prev() %} disabled{% endif %}">
         <a href="{{url_for('logs.index')}}?count={{logs.per_page}}&page={{logs.prev_num}}">&larr;</a>
@@ -39,6 +40,7 @@
         <a href="{{url_for('logs.index')}}?count={{logs.per_page}}&page={{logs.next_num}}">&rarr;</a>
     </li>
 </ul>
+{% endif %}
 <script type="text/javascript">
     $(function(){
         $("li#nav-logs").addClass('active');

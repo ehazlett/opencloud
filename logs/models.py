@@ -24,7 +24,7 @@ class Log(db.Document):
     config_collection_name = 'logs'
 
     uuid = db.StringField(default=str(uuid4()))
-    date = db.DateTimeField(default=datetime.now())
+    date = db.DateTimeField()
     level = db.IntField()
     name = db.StringField()
     message = db.StringField()

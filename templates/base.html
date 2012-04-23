@@ -47,7 +47,7 @@
           <a class="brand" href="/">{{config.get('APP_NAME')}}</a>
           <div class="nav-collapse">
             <ul class="nav">
-              {% if session %}
+              {% if session.user %}
               <li id="nav-logs"><a href="{{url_for('logs.index')}}">{{_('logs')}}</a></li>
               {% endif %}
             </ul>
