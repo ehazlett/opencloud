@@ -57,7 +57,7 @@ def index(region=None):
     }
     return render_template('dashboard/index.html', **ctx)
 
-@bp.route('/nodes/<provider>/<region>')
+@bp.route('/nodes/<provider>/<region>/')
 @login_required
 def nodes(provider=None, region=None):
     org = request.args.get('organization', session.get('default_organization'))
