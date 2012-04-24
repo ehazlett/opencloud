@@ -26,6 +26,8 @@ libcloud.security.VERIFY_SSL_CERT = config.LIBCLOUD_VERIFY_CERTS
 app = config.create_app()
 cache = Cache(app)
 
+log = get_logger(__name__)
+
 def _get_connection(provider=None, region=None, id=None, key=None):
     """
     Gets a libcloud connection to the specified provider
@@ -84,7 +86,6 @@ def reboot_node(provider=None, region=None, id=None, key=None, node_id=None):
     :param node_id: ID of the node to restart
     
     """
-    log = get_logger(__name__)
     log.info('Restarting instance {0}'.format(node_id))
     node = get_nodes(provider, region, id, key, [node_id])[0]
     ret_val = None
@@ -106,7 +107,6 @@ def stop_node(provider=None, region=None, id=None, key=None, node_id=None):
     :param node_id: ID of the node to restart
 
     """
-    log = get_logger(__name__)
     log.info('Stopping instance {0}'.format(node_id))
     node = get_nodes(provider, region, id, key, [node_id])[0]
     ret_val = False
@@ -125,7 +125,6 @@ def destroy_node(provider=None, region=None, id=None, key=None, node_id=None):
     :param node_id: ID of the node to restart
 
     """
-    log = get_logger(__name__)
     log.info('Destroying instance {0}'.format(node_id))
     node = get_nodes(provider, region, id, key, [node_id])[0]
     return node.destroy()
@@ -250,7 +249,6 @@ def launch_node(provider=None, region=None, id=None, key=None, name=None, image_
     :param kwargs: Miscellaneous provider specific args
 
     """
-    log = get_logger(__name__)
     log.debug('Launching a new node in {0}, region {1}: Image: {2} Size: {3}'.format(provider, \
         region, image_id, size_id))
     conn = _get_connection(provider, region, id, key)

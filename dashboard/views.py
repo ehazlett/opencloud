@@ -84,6 +84,8 @@ def node_reboot(provider=None, region=None, node_id=None):
         provider_key = provider_info.get('provider_key')
         cloud.reboot_node(provider, region, provider_id, provider_key, node_id)
         flash(messages.INSTANCE_REBOOTED)
+        current_app.logger.info('{0} rebooted node {1} in {2} ({3})'.format(session.get('user').username, \
+            node_id, provider, region))
     return redirect(url_for('dashboard.index', region=region))
 
 @bp.route('/nodes/<provider>/<region>/<node_id>/stop')
@@ -96,6 +98,8 @@ def node_stop(provider=None, region=None, node_id=None):
         provider_key = provider_info.get('provider_key')
         if cloud.stop_node(provider, region, provider_id, provider_key, node_id):
             flash(messages.INSTANCE_STOPPED)
+            current_app.logger.info('{0} stopped node {1} in {2} ({3})'.format(session.get('user').username, \
+                node_id, provider, region))
     return redirect(url_for('dashboard.index', region=region))
  
 @bp.route('/nodes/<provider>/<region>/<node_id>/destroy')
@@ -108,6 +112,8 @@ def node_destroy(provider=None, region=None, node_id=None):
         provider_key = provider_info.get('provider_key')
         cloud.destroy_node(provider, region, provider_id, provider_key, node_id)
         flash(messages.INSTANCE_DESTROYED)
+        current_app.logger.info('{0} destroyed node {1} in {2} ({3})'.format(session.get('user').username, \
+            node_id, provider, region))
     return redirect(url_for('dashboard.index', region=region))
 
 @bp.route('/nodes/<provider>/<region>/launch', methods=['GET', 'POST'])
