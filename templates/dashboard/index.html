@@ -6,6 +6,7 @@
 {% endblock %}
 {% block main_content %}
 <div id="modal-launch-server" class="modal hide">
+    <div class="loading"></div>
 </div>
 {% if regions %}
 <ul class="nav nav-tabs">
@@ -33,7 +34,7 @@
     function loadNodes(provider, region) {
         var org = $("#current-organization").val();
         var region = region ? region : '';
-        $("#tab-content-servers").load("/dashboard/nodes/" + provider + '/' + region) + '/';
+        $("#tab-content-servers").load("/dashboard/nodes/" + provider + '/' + region);
     };
     $(function(){
         $("#btn-launch-server").click(function(){

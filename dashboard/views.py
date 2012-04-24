@@ -57,7 +57,7 @@ def index(region=None):
     }
     return render_template('dashboard/index.html', **ctx)
 
-@bp.route('/nodes/<provider>/<region>/')
+@bp.route('/nodes/<provider>/<region>')
 @login_required
 def nodes(provider=None, region=None):
     org = request.args.get('organization', session.get('default_organization'))
@@ -123,9 +123,11 @@ def node_launch(provider=None, region=None):
         node_name = request.form.get('name')
         node_image_id = request.form.get('image')
         node_size_id = request.form.get('size')
+        keypair = request.form.get('keypair', None)
+        security_groups = request.form.get('security_groups', None)
         try:
-            cloud.launch_node.delay(provider, region, provider_id, provider_key, node_name, \
-                node_image_id, node_size_id)
+            cloud.launch_node(provider, region, provider_id, provider_key, node_name, \
+                node_image_id, node_size_id, keypair=keypair, security_groups=security_groups)
             flash(messages.INSTANCE_LAUNCHED)
         except Exception, e:
             flash(e, 'error')

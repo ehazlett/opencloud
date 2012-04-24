@@ -26,6 +26,20 @@
                     {% endif %}
                 </div>
             </div>
+            {% if provider == 'ec2' %}
+            <div class="control-group">
+                <label class="control-label" for="keypair">{{_('Keypair')}}</label>
+                <div class="controls">
+                    <input type="text" name="keypair" value="" class="required" placeholder="{{_('keypair')}}" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="keypair">{{_('Security Groups')}}</label>
+                <div class="controls">
+                    <input type="text" name="security_groups" value="" class="" placeholder="{{_('space separated')}}" />
+                </div>
+            </div>
+            {% endif %}
             <div class="control-group">
                 <label class="control-label" for="size">{{_('Size')}}</label>
                 <div class="controls">
@@ -40,14 +54,20 @@
     </form>
 </div>
 <div class="modal-footer">
-    <a href="#" class="btn btn-large" data-dismiss="modal">{{_('Cancel')}}</a>
+    <a href="#" class="btn btn-large btn-cancel" data-dismiss="modal">{{_('Cancel')}}</a>
     <a id="btn-launch-node" href="#" class="btn btn-large btn-primary">{{_('Launch')}}</a>
 </div>
 <script type="text/javascript">
     $(function(){
         $("form#launch-node").validate();
         $("a#btn-launch-node").click(function(){
+            // submit
             $("form#launch-node").submit();
+            // show loading
+            $("div#modal-launch-server div.modal-body").html('<div class="loading"></div>');
+            // disable controls
+            $("a#btn-launch-node").addClass('disabled');
+            $("a.btn-cancel").addClass('disabled');
         });
     });
 </script>

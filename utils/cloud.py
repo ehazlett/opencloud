@@ -235,7 +235,8 @@ def _get_rackspace_sizes(region=None, id=None, key=None):
     return sizes
     
 @task
-def launch_node(provider=None, region=None, id=None, key=None, name=None, image_id=None, size_id=None):
+def launch_node(provider=None, region=None, id=None, key=None, name=None, image_id=None, size_id=None, \
+    **kwargs):
     """
     Launches a new node for the specified provider
 
@@ -246,6 +247,7 @@ def launch_node(provider=None, region=None, id=None, key=None, name=None, image_
     :param name: Name of instance
     :param image_id: ID of image to use
     :param size_id: ID of size to use
+    :param kwargs: Miscellaneous provider specific args
 
     """
     log = get_logger(__name__)
@@ -260,7 +262,14 @@ def launch_node(provider=None, region=None, id=None, key=None, name=None, image_
         size = size[0]
     if not image or not size:
         raise ValueError('Invalid image_id or size_id')
-    node = conn.create_node(name=name, image=image, size=size)
+    if provider == 'ec2':
+        keypair = kwargs.get('keypair', None)
+        security_groups = kwargs.get('security_groups', [])
+        if not isinstance(security_groups, list):
+            security_groups = security_groups.split()
+        node = conn.create_node(name=name, image=image, size=size, ex_keyname=keypair, ex_securitygroup=security_groups)
+    else:
+        node = conn.create_node(name=name, image=image, size=size, )
     msg = "Node launched: {0} ({1}) in {2} region of {3} ; {4}".format(node.name, node.uuid, region, provider, \
         node.extra)
     log.info(msg)
