@@ -42,15 +42,23 @@
 </ul>
 {% endif %}
 <script type="text/javascript">
+    function search() {
+        location.href = "{{url_for('logs.index')}}?search=" + $("input#search-text").val();
+    };
     $(function(){
         $("li#nav-logs").addClass('active');
+        $("#search-text").keypress(function(e){
+            if (e.charCode == 13) {
+                search();
+            }
+        });
         $("a#btn-clear-logs").click(function(){
             if (confirm("{{_('Are you sure you want to remove all logs?')}}")) {
                 location.href = "{{url_for('logs.clear')}}";
             }
         });
         $("a#btn-search").click(function(){
-            location.href = "{{url_for('logs.index')}}?search=" + $("input#search-text").val();
+            search();
         });
     });
 </script>
