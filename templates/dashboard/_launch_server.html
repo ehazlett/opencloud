@@ -61,13 +61,16 @@
     $(function(){
         $("form#launch-node").validate();
         $("a#btn-launch-node").click(function(){
-            // submit
-            $("form#launch-node").submit();
-            // show loading
-            $("div#modal-launch-server div.modal-body").html('<div class="loading"></div>');
-            // disable controls
-            $("a#btn-launch-node").addClass('disabled');
-            $("a.btn-cancel").addClass('disabled');
+            
+            if ($("form#launch-node").valid()) {
+                // submit
+                $("form#launch-node").submit();
+                // show loading
+                $("div#modal-launch-server div.modal-body").html('<div class="loading"></div>');
+                // disable controls
+                $("a#btn-launch-node").addClass('disabled');
+                $("a.btn-cancel").addClass('disabled');
+            }
         });
     });
 </script>
