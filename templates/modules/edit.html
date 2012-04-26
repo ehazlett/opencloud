@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% from "_helpers.html" import render_field %}
+
+{% block base_content %}
+<div class="container-fluid">
+<div class="span8 offset2 content">
+    <form id="form-module" class="form-horizontal well" method="POST">
+      <fieldset>
+        {% for field in form %}
+        {% if field.name == 'content' %}
+        {{render_field(field, class="code")}}
+        {% else %}
+        {{render_field(field)}}
+        {% endif %}
+        {% endfor %}
+      </fieldset>
+      <div class="form-actions">
+        <button id="form-save" class="btn btn-large btn-primary">{{_('Save')}}</button>
+        <a href="{{url_for('modules.index')}}" class="btn btn-large">{{_('Cancel')}}</a>
+      </div>
+    </form>
+</div>
+</div>
+<script type="text/javascript">
+  $("#form-save").click(function(){
+    $("#form-save").submit();
+  });
+</script>
+{% endblock %}

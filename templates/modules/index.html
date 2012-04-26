@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block page_header_toolbar %}
+<a id="btn-new-module" class="btn btn-primary" data-toggle="modal" href="#modal-new-module">{{_('New')}}</a>
+{% if modules.items %}
+<input id="search-text" type="text" name="search" class="input-medium search-query" value="{% if search_query %}{{search_query}}{% endif %}"/>
+<a id="btn-search" href="#" class="btn">{{_('Go')}}</a>
+{% endif %}
+<div id="modal-new-module" class="modal hide">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>{{_('Create New Module')}}</h3>
+    </div>
+    <div class="modal-body">
+        <form id="new-module" class="form-horizontal well" method="post" action="{{url_for('modules.new_module')}}">
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label" for="name">{{_('Name')}}</label>
+                    <div class="controls">
+                        <input type="text" name="name" value="" class="required" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="description">{{_('Description')}}</label>
+                    <div class="controls">
+                        <input type="text" name="description" value="" class="required span3" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="tags">{{_('Tags')}}</label>
+                    <div class="controls">
+                        <input type="text" name="tags" value="" placeholder="{{_('space separated')}}"/>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn btn-large btn-cancel" data-dismiss="modal">{{_('Cancel')}}</a>
+        <a id="btn-create-module" href="#" class="btn btn-large btn-primary">{{_('Create')}}</a>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block main_content %}
+{% if modules.items %}
+<table class="table table-striped table-bordered">
+    <tr>
+        <th>{{_('Created')}}</th>
+        <th>{{_('Name')}}</th>
+        <th>{{_('Description')}}</th>
+        <th>{{_('Author')}}</th>
+        <th>{{_('Tags')}}</th>
+    </tr>
+    {% for module in modules.items %}
+    <tr>
+        <td width="20%">{{module.created}}</td>
+        <td><a href="{{url_for('modules.edit_module', uuid=module.uuid)}}">{{module.name}}</a></td>
+        <td>{{module.description}}</td>
+        <td>{{module.author|get_username}}</td>
+        <td>{{module.tags|join(', ')}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<span class="info-large">{{_('There are no modules')}}</span>
+{% endif %}
+
+{% if modules.items %}
+<ul class="pager">
+    <li class="previous{% if not modules.has_prev() %} disabled{% endif %}">
+        <a href="{{url_for('modules.index')}}?count={{modules.per_page}}&page={{modules.prev_num}}">&larr;</a>
+    </li>
+    <li class="next{% if not modules.has_next() %} disabled{% endif %}">
+        <a href="{{url_for('modules.index')}}?count={{modules.per_page}}&page={{modules.next_num}}">&rarr;</a>
+    </li>
+</ul>
+{% endif %}
+<script type="text/javascript">
+    function search() {
+        location.href = "{{url_for('modules.index')}}?search=" + $("input#search-text").val();
+    };
+    $(function(){
+        $("form#new-module").validate();
+        $("a#btn-create-module").click(function(){
+            // submit
+            $("form#new-module").submit();
+        });
+         $("#btn-new-module").click(function(){
+             $("#modal-new-module").modal('toggle');
+        });
+        $("#search-text").keypress(function(e){
+            if (e.charCode == 13) {
+                search();
+            }
+        });
+        $("a#btn-search").click(function(){
+            search();
+        });
+    });
+</script>
+{% endblock %}

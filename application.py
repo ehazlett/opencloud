@@ -27,10 +27,12 @@ from flaskext.cache import Cache
 import config
 from utils import cloud
 from raven.contrib.flask import Sentry
+import uuid
 #from api.views import api_blueprint
 from accounts.views import accounts_blueprint
 from dashboard.views import dashboard_blueprint
 from logs.views import logs_blueprint
+from modules.views import modules_blueprint
 from accounts.models import User
 from utils.logger import MongoDBHandler
 
@@ -41,6 +43,7 @@ app = config.create_app()
 app.register_blueprint(accounts_blueprint, url_prefix='/accounts')
 app.register_blueprint(dashboard_blueprint, url_prefix='/dashboard')
 app.register_blueprint(logs_blueprint, url_prefix='/logs')
+app.register_blueprint(modules_blueprint, url_prefix='/modules')
 babel = Babel(app)
 cache = Cache(app)
 login_manager = LoginManager()
@@ -77,6 +80,15 @@ def log_level_name(level):
         50: 'critical',
     }
     return levels.get(level, 'unknown')
+
+@app.template_filter('get_username')
+def get_username(user_id):
+    user = User.get_by_uuid(user_id)
+    if user:
+        return user.username
+    else:
+        return None
+
 # ----- end filters
 
 @app.route('/')
@@ -97,6 +109,7 @@ def create_user():
             else:
                 print('Passwords do not match... Try again...')
         u = User(username=username)
+        u.uuid = str(uuid.uuid4())
         u.email = email
         u.set_password(password)
         u.save()

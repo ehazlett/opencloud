@@ -62,3 +62,7 @@ div.loading {
   background: url('/static/img/loader_64.gif') no-repeat;
   background-position: center;
 }
+textarea.code {
+  width: 350px;
+  height: 250px;
+}
