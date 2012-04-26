@@ -235,7 +235,7 @@ def _get_rackspace_sizes(region=None, id=None, key=None):
     
 @task
 def launch_node(provider=None, region=None, id=None, key=None, name=None, image_id=None, size_id=None, \
-    **kwargs):
+    modules=[], **kwargs):
     """
     Launches a new node for the specified provider
 
@@ -246,6 +246,7 @@ def launch_node(provider=None, region=None, id=None, key=None, name=None, image_
     :param name: Name of instance
     :param image_id: ID of image to use
     :param size_id: ID of size to use
+    :param modules: List of modules to run on launch
     :param kwargs: Miscellaneous provider specific args
 
     """
@@ -260,6 +261,7 @@ def launch_node(provider=None, region=None, id=None, key=None, name=None, image_
         size = size[0]
     if not image or not size:
         raise ValueError('Invalid image_id or size_id')
+    # TODO: handle deployment with modules
     if provider == 'ec2':
         keypair = kwargs.get('keypair', None)
         security_groups = kwargs.get('security_groups', [])

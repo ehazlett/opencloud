@@ -32,7 +32,7 @@ class TagListField(Field):
             
 class ModuleForm(Form):
     name = TextField(gettext('Name'), validators=[validators.Required()])
-    description = TextField(gettext('Description'), validators=[validators.Required()])
+    description = TextField(gettext('Description'))
     content = TextField(gettext('Content'), widget=widgets.TextArea(), validators=[validators.Required()])
     tags = TagListField(gettext('Tags'))
     

@@ -26,8 +26,8 @@ class Module(db.Document):
     created = db.DateTimeField()
     author = db.StringField()
     name = db.StringField()
-    description = db.StringField()
-    content = db.StringField()
+    description = db.StringField(required=False)
+    content = db.StringField(required=False)
     enabled = db.BoolField(default=True)
     tags = db.ListField(db.StringField(), required=False, default=[])
 

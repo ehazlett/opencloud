@@ -19,6 +19,7 @@ from flaskext.cache import Cache
 import messages
 from utils import cloud
 import config
+from modules.models import Module
 
 bp = dashboard_blueprint = Blueprint('dashboard', __name__)
 app = config.create_app()
@@ -131,17 +132,21 @@ def node_launch(provider=None, region=None):
         node_size_id = request.form.get('size')
         keypair = request.form.get('keypair', None)
         security_groups = request.form.get('security_groups', None)
+        modules = request.form.getlist('modules')
         try:
             cloud.launch_node(provider, region, provider_id, provider_key, node_name, \
-                node_image_id, node_size_id, keypair=keypair, security_groups=security_groups)
+                node_image_id, node_size_id, keypair=keypair, security_groups=security_groups, \
+                modules=modules)
             flash(messages.INSTANCE_LAUNCHED)
         except Exception, e:
             flash(e, 'error')
         return redirect(url_for('dashboard.index', region=region))
+    modules = Module.query.filter({'enabled': True}).descending('name')
     ctx = {
         'provider': provider,
         'region': region,
         'images': cloud.get_images(provider, region, provider_id, provider_key),
         'sizes': cloud.get_sizes(provider, region, provider_id, provider_key),
+        'modules': modules,
     }
     return render_template('dashboard/_launch_server.html', **ctx)
