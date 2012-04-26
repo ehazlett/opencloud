@@ -33,9 +33,9 @@ def index():
     if query:
         regex = re.compile(r'{0}'.format(re.escape(query), re.IGNORECASE))
         results = Module.query.filter({ '$or': \
-            [{'name': regex}, {'content': regex}]}).descending('created').paginate(page, count, error_out=False)
+            [{'name': regex}, {'content': regex}]}).ascending('name').paginate(page, count, error_out=False)
     else:
-        results = Module.query.descending('created').paginate(page, count, error_out=False)
+        results = Module.query.ascending('name').paginate(page, count, error_out=False)
     ctx = {
         'modules': results,
         'search_query': query,
