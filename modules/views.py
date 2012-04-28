@@ -65,6 +65,7 @@ def edit_module(uuid=None):
         if module:
             # update db
             data = form.data
+            data['content'] = data.get('content').replace('\r\n', '\n')
             # update 
             module.update(**data)
             flash(messages.MODULE_UPDATED)

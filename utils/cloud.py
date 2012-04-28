@@ -15,11 +15,16 @@
 from libcloud.compute.types import Provider
 from libcloud.compute.providers import get_driver
 from libcloud.compute.deployment import ScriptDeployment
+from modules.models import Module
+import paramiko
 import libcloud.security
 from celery.task import task
 from flaskext.cache import Cache
 from utils.logger import get_logger
 import config
+import tempfile
+import os
+import time
 
 libcloud.security.VERIFY_SSL_CERT = config.LIBCLOUD_VERIFY_CERTS
 
@@ -234,11 +239,12 @@ def _get_rackspace_sizes(region=None, id=None, key=None):
     return sizes
     
 @task
-def launch_node(provider=None, region=None, id=None, key=None, name=None, image_id=None, size_id=None, \
+def launch_node(organization=None, provider=None, region=None, id=None, key=None, name=None, image_id=None, size_id=None, \
     modules=[], **kwargs):
     """
     Launches a new node for the specified provider
 
+    :param organization: Name of organization from config
     :param provider: Name of provider (i.e. ec2)
     :param region: Name of region
     :param id: Provider ID 
@@ -261,17 +267,63 @@ def launch_node(provider=None, region=None, id=None, key=None, name=None, image_
         size = size[0]
     if not image or not size:
         raise ValueError('Invalid image_id or size_id')
-    # TODO: handle deployment with modules
-    if provider == 'ec2':
-        keypair = kwargs.get('keypair', None)
-        security_groups = kwargs.get('security_groups', [])
-        if not isinstance(security_groups, list):
-            security_groups = security_groups.split()
-        node = conn.create_node(name=name, image=image, size=size, ex_keyname=keypair, ex_securitygroup=security_groups)
-    else:
-        node = conn.create_node(name=name, image=image, size=size, )
-    msg = "Node launched: {0} ({1}) in {2} region of {3} ; {4}".format(node.name, node.uuid, region, provider, \
-        node.extra)
-    log.info(msg)
+    org_config = config.APP_CONFIG.get('organizations').get(organization)
+    script = None
+    ssh_key = None
+    ssh_user = org_config.get('ssh_user', None)
+    if modules:
+        script = ""
+        for mod in modules:
+            script += "{0}\n".format(Module.get_by_uuid(mod).content)
+        ssh_key = tempfile.mktemp()
+        with open(ssh_key, 'w') as f:
+            key = org_config.get('ssh_key', None)
+            if key:
+                f.write(key)
+            else:
+                log.error('No ssh_key specified in org config')
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        password = None
+        if provider == 'ec2':
+            keypair = kwargs.get('keypair', None)
+            security_groups = kwargs.get('security_groups', [])
+            if not isinstance(security_groups, list):
+                security_groups = security_groups.split()
+            node = conn.create_node(name=name, image=image, size=size, ex_keyname=keypair, \
+                ex_securitygroup=security_groups)
+        else:
+            node = conn.create_node(name=name, image=image, size=size)
+        node = conn._wait_until_running(node)
+        password = node.extra.get('password', None)
+        if script:
+            while True:
+                try:
+                    ssh.connect(node.public_ips[0], username=ssh_user, password=password, key_filename=ssh_key)
+                    break
+                except Exception, e:
+                    print(e)
+                    time.sleep(5)
+            sftp = ssh.open_sftp()
+            f = sftp.open('/tmp/bootstrap.sh', 'w')
+            f.write(script)
+            f.close()
+            sftp.chmod('/tmp/bootstrap.sh', 0755)
+            i,o,e = ssh.exec_command('/bin/sh /tmp/bootstrap.sh')
+            log.info('Script output: {0}'.format(o.readlines()))
+            err = e.readlines()
+            if err:
+                log.error('Script error: {0}'.format(err))
+        msg = "Node launched: {0} ({1}) in {2} region of {3} ; {4}".format(node.name, node.uuid, region, provider, \
+            node.extra)
+        log.info(msg)
+    except Exception, e:
+        import traceback
+        traceback.print_exc()
+        if os.path.exists(ssh_key):
+            os.remove(ssh_key)
+        msg = 'Error launching node: {0}'.format(str(e))
+        log.error(msg)
     return msg
     

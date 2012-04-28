@@ -50,7 +50,8 @@ def index(region=None):
     org_data = current_app.config.get('APP_CONFIG').get('organizations').get(session.get('default_organization'))
     if org_data:
         provider = org_data.get('provider')
-        regions = [x.get('name') for x in current_app.config.get('REGIONS').get(provider)]
+        if current_app.config.get('REGIONS').get(provider):
+            regions = [x.get('name') for x in current_app.config.get('REGIONS').get(provider)]
     ctx = {
         'provider': provider,
         'regions': regions,
@@ -134,11 +135,12 @@ def node_launch(provider=None, region=None):
         security_groups = request.form.get('security_groups', None)
         modules = request.form.getlist('modules')
         try:
-            cloud.launch_node(provider, region, provider_id, provider_key, node_name, \
+            cloud.launch_node.delay(org, provider, region, provider_id, provider_key, node_name, \
                 node_image_id, node_size_id, keypair=keypair, security_groups=security_groups, \
                 modules=modules)
             flash(messages.INSTANCE_LAUNCHED)
         except Exception, e:
+            print(e)
             flash(e, 'error')
         return redirect(url_for('dashboard.index', region=region))
     modules = Module.query.filter({'enabled': True}).descending('name')
