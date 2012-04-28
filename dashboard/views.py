@@ -30,13 +30,16 @@ def get_provider_info(provider=None):
     org_data = current_app.config.get('APP_CONFIG').get('organizations').get(org)
     provider_id = None
     provider_key = None
+    provider_data = None
     if org_data:
         provider_id = org_data.get('provider_id')
         provider_key = org_data.get('provider_key')
+        provider_data = org_data.get('provider_data')
     data.update(
         provider = provider,
         provider_id = provider_id,
-        provider_key = provider_key
+        provider_key = provider_key,
+        provider_data = provider_data
     )
     return data
 
@@ -49,7 +52,8 @@ def index(region=None):
     org_data = current_app.config.get('APP_CONFIG').get('organizations').get(session.get('default_organization'))
     if org_data:
         provider = org_data.get('provider')
-        regions = [x.get('name') for x in current_app.config.get('REGIONS').get(provider)]
+        if current_app.config.get('REGIONS').get(provider):
+            regions = [x.get('name') for x in current_app.config.get('REGIONS').get(provider)]
     ctx = {
         'provider': provider,
         'regions': regions,
@@ -140,6 +144,7 @@ def node_launch(provider=None, region=None):
         return redirect(url_for('dashboard.index', region=region))
     ctx = {
         'provider': provider,
+        'provider_info': provider_info,
         'region': region,
         'images': cloud.get_images(provider, region, provider_id, provider_key),
         'sizes': cloud.get_sizes(provider, region, provider_id, provider_key),

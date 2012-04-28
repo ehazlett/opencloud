@@ -10,7 +10,7 @@ body {
 .alert {
   position: fixed;
   overflow: visible;
-  top: 40px;
+  top: 50px;
   left: 0;
   right: 0;
   z-index: 999;

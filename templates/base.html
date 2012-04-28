@@ -69,8 +69,6 @@
                   <li><a href="{{url_for('accounts.settings')}}">{{_('account')}}</a></li>
                   {% if 'admin' in session.user.roles %}
                   <li class="divider"></li>
-                  <li><a href="#">admin</a></li>
-                  <li class="divider"></li>
                   {% endif %}
                   <li><a href="{{url_for('accounts.logout')}}">{{_('logout')}}</a></li>
                 </ul>
