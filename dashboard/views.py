@@ -138,6 +138,8 @@ def node_launch(provider=None, region=None):
         try:
             cloud.launch_node(provider, region, provider_id, provider_key, node_name, \
                 node_image_id, node_size_id, keypair=keypair, security_groups=security_groups)
+            current_app.logger.info('{0} launched node {1} ({2}) in {3} ({4})'.format(session.get('user').username, \
+                node_name, node_image_id, provider, region))
             flash(messages.INSTANCE_LAUNCHED)
         except Exception, e:
             flash(e, 'error')
