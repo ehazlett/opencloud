@@ -8,6 +8,14 @@
       "provider_id": "<access_id>",
       "provider_key": "<secret>",
       "provider_data": {
+        "images": {
+          "<region>": [
+            {
+              "id": "<image_id>",
+              "name": "<description>"
+            }
+          ]
+        },
         "keypair": "mykey"
       },
       "ssh_user": "username to use when connecting with ssh",

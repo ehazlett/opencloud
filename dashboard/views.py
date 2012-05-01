@@ -144,11 +144,13 @@ def node_launch(provider=None, region=None):
         except Exception, e:
             flash(e, 'error')
         return redirect(url_for('dashboard.index', region=region))
+    default_images = provider_info.get('provider_data').get('images', {}).get(region, None)
     ctx = {
         'provider': provider,
         'provider_info': provider_info,
         'region': region,
         'images': cloud.get_images(provider, region, provider_id, provider_key),
         'sizes': cloud.get_sizes(provider, region, provider_id, provider_key),
+        'default_images': default_images,
     }
     return render_template('dashboard/_launch_server.html', **ctx)

@@ -17,16 +17,29 @@
                 <div class="controls">
                     {% if provider == 'rackspace' %}
                     <select id="image" name="image">
-                    {% for image in images %}
-                    <option value="{{image.id}}">{{image.name}}</option>
-                    {% endfor %}
+                        {% for image in images %}
+                        <option value="{{image.id}}">{{image.name}}</option>
+                        {% endfor %}
                     </select>
                     {% else %}
-                    <input type="text" name="image" value="" class="required" placeholder="{{_('ami id')}}" />
+                    <input id="image" type="text" name="image" value="" class="required" placeholder="{{_('ami id')}}" />
                     {% endif %}
                 </div>
             </div>
             {% if provider == 'ec2' %}
+            {% if default_images %}
+            <div class="control-group">
+                <label class="control-label" for="default-image">{{_('Default Images')}}</label>
+                <div class="controls">
+                    <select id="default-image">
+                        <option value="">-----</option>
+                        {% for image in default_images %}
+                        <option value="{{image.id}}">{{image.name}} ({{image.id}})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            {% endif %}
             <div class="control-group">
                 <label class="control-label" for="keypair">{{_('Keypair')}}</label>
                 <div class="controls">
@@ -61,7 +74,7 @@
     $(function(){
         $("form#launch-node").validate();
         $("a#btn-launch-node").click(function(){
-            
+
             if ($("form#launch-node").valid()) {
                 // submit
                 $("form#launch-node").submit();
@@ -71,6 +84,9 @@
                 $("a#btn-launch-node").addClass('disabled');
                 $("a.btn-cancel").addClass('disabled');
             }
+        });
+        $("select#default-image").bind('change keypress', function(){
+            $("input#image").val($("select#default-image :selected").val());
         });
     });
 </script>
