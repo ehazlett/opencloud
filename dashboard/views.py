@@ -138,15 +138,19 @@ def node_launch(provider=None, region=None):
         try:
             cloud.launch_node(provider, region, provider_id, provider_key, node_name, \
                 node_image_id, node_size_id, keypair=keypair, security_groups=security_groups)
+            current_app.logger.info('{0} launched node {1} ({2}) in {3} ({4})'.format(session.get('user').username, \
+                node_name, node_image_id, provider, region))
             flash(messages.INSTANCE_LAUNCHED)
         except Exception, e:
             flash(e, 'error')
         return redirect(url_for('dashboard.index', region=region))
+    default_images = provider_info.get('provider_data').get('images', {}).get(region, None)
     ctx = {
         'provider': provider,
         'provider_info': provider_info,
         'region': region,
         'images': cloud.get_images(provider, region, provider_id, provider_key),
         'sizes': cloud.get_sizes(provider, region, provider_id, provider_key),
+        'default_images': default_images,
     }
     return render_template('dashboard/_launch_server.html', **ctx)
