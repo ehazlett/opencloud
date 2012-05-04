@@ -8,7 +8,7 @@
             <div class="control-group">
                 <label class="control-label" for="name">{{_('Roles (space separated)')}}</label>
                 <div class="controls">
-                    <textarea name="roles" class="input-xlarge" rows="5">{{node_data.roles|join(' ')}}</textarea>
+                    <input id="roles" name="roles" class="input-xlarge" value="{{node_data.roles|join(' ')}}" />
                 </div>
             </div>
         </fieldset>
@@ -20,6 +20,9 @@
 </div>
 <script type="text/javascript">
     $(function(){
+        $("input#roles").tagit({
+            singleFieldDelimiter: " "
+        });
         $("a#btn-save").click(function(){
             $("form#node-roles").submit();
             return false;

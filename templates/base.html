@@ -16,6 +16,8 @@
     <link href="{{url_for('static', filename='css/bootstrap.min.css')}}" rel="stylesheet">
     <link href="{{url_for('static', filename='css/app.css')}}" rel="stylesheet">
     <link href="{{url_for('static', filename='css/bootstrap-responsive.min.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/theme/jquery-ui.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/jquery-tagit.css')}}" rel="stylesheet">
 
     <!-- fav and touch icons -->
     <link rel="shortcut icon" href="{{url_for('static', filename='img/favicon.ico')}}">
@@ -24,6 +26,7 @@
     <link rel="apple-touch-icon" sizes="114x114" href="{{url_for('static', filename='img/apple-touch-icon-114x114.png')}}">
     <!-- scripts -->
     <script type="text/javascript" src="{{url_for('static', filename='js/jquery.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery-ui.min.js')}}"></script>
   </head>
   <body>
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -99,7 +102,9 @@
     <script type="text/javascript" src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
     <script type="text/javascript" src="{{url_for('static', filename='js/bootstrap-tab.js')}}"></script>
     <script type="text/javascript" src="{{url_for('static', filename='js/bootstrap-modal.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/bootstrap-popover.js')}}"></script>
     <script type="text/javascript" src="{{url_for('static', filename='js/jquery.validate.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery-tagit.js')}}"></script>
     <script type="text/javascript" src="{{url_for('static', filename='js/app.js')}}"></script>
     <script type="text/javascript">
       $(function(){
