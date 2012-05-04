@@ -23,8 +23,8 @@ db = MongoAlchemy(app)
 class Log(db.Document):
     config_collection_name = 'logs'
 
-    uuid = db.StringField(default=str(uuid4()))
-    date = db.DateTimeField()
+    uuid = db.ComputedField(db.StringField(), lambda x: str(uuid4()), one_time=True)
+    date = db.ComputedField(db.DateTimeField(), lambda x: datetime.utcnow(), one_time=True)
     level = db.IntField()
     name = db.StringField()
     message = db.StringField()

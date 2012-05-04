@@ -24,7 +24,6 @@ class MongoDBHandler(logging.Handler):
 
     def emit(self, msg):
         log = Log()
-        log.date = datetime.now()
         log.level = msg.levelno
         log.name = msg.name
         log.message = msg.msg

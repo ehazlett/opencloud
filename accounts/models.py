@@ -35,7 +35,7 @@ def username_validator(username):
 class User(db.Document):
     config_collection_name = 'users'
 
-    uuid = db.StringField(default=str(uuid4()))
+    uuid = db.ComputedField(db.StringField(), lambda x: str(uuid4()), one_time=True)
     username = db.StringField(validator=username_validator)
     first_name = db.StringField(required=False, default='')
     last_name = db.StringField(required=False, default='')
