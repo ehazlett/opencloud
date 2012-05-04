@@ -18,21 +18,60 @@ from flaskext.login import login_user, logout_user, login_required
 from config import create_app
 from accounts.models import User
 from accounts.forms import LoginForm, AccountForm
+from decorators import admin_required
 import utils
 import messages
+import re
 
 bp = accounts_blueprint = Blueprint('accounts', __name__)
 app = create_app()
 
-@bp.context_processor
-def load_user():
-    return {'user': session.get('user', None)}
+@bp.route('/', methods=['GET'])
+@login_required
+@admin_required
+def index():
+    count = int(request.args.get('count', 15))
+    page = int(request.args.get('page', 1))
+    query = request.args.get('search', None)
+    if query:
+        regex = re.compile(r'{0}'.format(re.escape(query), re.IGNORECASE))
+        results = User.query.filter({ '$or': \
+            [{'name': regex}]}).ascending('username').paginate(page, count, error_out=False)
+    else:
+        results = User.query.ascending('username').paginate(page, count, error_out=False)
+    ctx = {
+        'users': results,
+        'search_query': query,
+    }
+    return render_template('accounts/index.html', **ctx)
+
+@bp.route('/create', methods=['POST'])
+@login_required
+@admin_required
+def create():
+    user = User()
+    user.username = request.form.get('username', None)
+    user.first_name = request.form.get('first_name', '')
+    user.last_name = request.form.get('last_name', '')
+    user.email = request.form.get('email', '')
+    user.set_password(request.form.get('password', ''))
+    user.save()
+    return redirect(url_for('accounts.index'))
+
+@bp.route('/<username>/delete')
+@login_required
+@admin_required
+def delete_account(username=None):
+    user = User.get_by_username(username)
+    if user:
+        user.remove()
+    return redirect(url_for('accounts.index'))
 
 @bp.route('/login/', methods=['GET', 'POST'])
 def login():
     """
     Account login
-    
+
     """
     form = LoginForm()
     if form.validate_on_submit():
@@ -56,7 +95,7 @@ def login():
 def settings():
     """
     Account settings
-    
+
     """
     user = session.get('user', None)
     form = AccountForm(obj=user)
@@ -65,7 +104,7 @@ def settings():
         if user:
             # update db
             data = form.data
-            # update 
+            # update
             user.update(**data)
             # update the session user
             session['user'] = User.get_by_uuid(user.uuid)
@@ -75,13 +114,13 @@ def settings():
         'form': form,
     }
     return render_template('accounts/settings.html', **ctx)
-    
+
 @bp.route('/setdefaultorg/', methods=['POST'])
 @login_required
 def set_default_org():
     """
     Sets the default organization for the session
-    
+
     """
     session['default_organization'] = request.form.get('org', None)
     return ''
@@ -91,7 +130,7 @@ def set_default_org():
 def logout():
     """
     Logs out current user
-    
+
     """
     current_app.logger.info('{0} logout from {1}'.format(session['user'].username, request.remote_addr))
     session.pop('user')

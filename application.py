@@ -51,6 +51,10 @@ mongodb_handler = MongoDBHandler()
 mongodb_handler.setLevel(app.config.get('LOG_LEVEL'))
 app.logger.addHandler(mongodb_handler)
 
+@app.context_processor
+def load_user():
+    return {'user': session.get('user', None)}
+
 @login_manager.user_loader
 def user_loader(user_id):
     return User.get_by_uuid(user_id)

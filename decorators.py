@@ -13,9 +13,11 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 from functools import wraps
-from flask import request, current_app
+from flask import request, current_app, redirect
 from flask import jsonify
 from flask import url_for
+from flask import flash
+from flask import session
 import messages
 
 def api_key_required(f):
@@ -33,5 +35,16 @@ def api_key_required(f):
         if api_key not in current_app.config.get('API_KEYS', []):
             data = {'error': messages.INVALID_API_KEY}
             return jsonify(data)
+        return f(*args, **kwargs)
+    return decorated
+
+def admin_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        # check for admin role
+        user = session.get('user', None)
+        if not user or 'admin' not in user.roles:
+            flash(messages.ACCESS_DENIED, 'error')
+            return redirect(url_for('index'))
         return f(*args, **kwargs)
     return decorated

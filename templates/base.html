@@ -68,6 +68,7 @@
                 <ul class="dropdown-menu">
                   <li><a href="{{url_for('accounts.settings')}}">{{_('account')}}</a></li>
                   {% if 'admin' in session.user.roles %}
+                  <li><a href="{{url_for('accounts.index')}}">{{_('accounts')}}</a></li>
                   <li class="divider"></li>
                   {% endif %}
                   <li><a href="{{url_for('accounts.logout')}}">{{_('logout')}}</a></li>

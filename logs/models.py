@@ -28,7 +28,7 @@ class Log(db.Document):
     level = db.IntField()
     name = db.StringField()
     message = db.StringField()
-    
+
     @classmethod
     def clear(obj):
         Log._session.remove_query(Log).execute()
