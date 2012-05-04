@@ -51,6 +51,10 @@ mongodb_handler = MongoDBHandler()
 mongodb_handler.setLevel(app.config.get('LOG_LEVEL'))
 app.logger.addHandler(mongodb_handler)
 
+@app.context_processor
+def load_user():
+    return {'user': session.get('user', None)}
+
 @login_manager.user_loader
 def user_loader(user_id):
     return User.get_by_uuid(user_id)
@@ -66,7 +70,7 @@ def format_image_size(size, provider):
         'ec2': size.get('id', 'n/a'),
     }
     return sizes.get(provider, size.get('name', 'n/a'))
-    
+
 @app.template_filter('log_level_name')
 def log_level_name(level):
     levels = {
@@ -114,5 +118,5 @@ if __name__=='__main__':
     if opts.create_user:
         create_user()
         sys.exit(0)
-        
+
     app.run(host=opts.host, debug=True)

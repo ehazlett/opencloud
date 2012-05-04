@@ -15,6 +15,7 @@
 from flask import Blueprint
 from flask import request, render_template, jsonify, g, flash, redirect, url_for, session, current_app
 from flaskext.login import login_required
+from decorators import admin_required
 from logs.models import Log
 import re
 
@@ -40,6 +41,7 @@ def index():
 
 @bp.route('/clear/')
 @login_required
+@admin_required
 def clear():
     Log.clear()
     return redirect(url_for('logs.index'))

@@ -43,10 +43,15 @@ class User(db.Document):
     password = db.StringField(required=False)
     roles = db.ListField(db.StringField(), required=False, default=[])
     active = db.BoolField(default=True)
-    state = db.StringField(required=False, default='')
 
     def get_id(self):
         return self.uuid
+
+    def is_admin(self):
+        is_admin = False
+        if 'admin' in self.roles:
+            is_admin = True
+        return is_admin
 
     def is_active(self):
         return self.active

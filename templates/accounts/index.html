@@ -1,41 +1,110 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% block page_header_toolbar %}
+<a id="btn-new-user" href="#" class="btn"><i class="icon-user"></i> {{_('New User')}}</a>
+<input id="search-text" type="text" name="search" class="input-medium search-query" value="{% if search_query %}{{search_query}}{% endif %}"/>
+<a id="btn-search" href="#" class="btn"><i class="icon-search"></i></a>
+{% endblock %}
 
 {% block main_content %}
-<div class="row-fluid">
-  <div class="fill">
-    <h1>Accounts</h1>
-    <table class="table table-striped table-bordered">
-      <thead>
-        <td>ID</td>
-        <td>Subject</td>
-        <td>Created</td>
-        <td>Updated</td>
-      </thead>
-      <tbody>
-        {% for b in bills %}
-        <tr>
-          <td><a href="#" class="btn-bill" data-content="{{b.title}}">{{b.bill_id}}</a></td>
-          <td>{{b.subjects|join(',')}}</td>
-          <td>{{b.created_at}}</td>
-          <td>{{b.updated_at}}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    
-    <div id="billContent" class="well">
+<div id="modal-new-user" class="modal hide">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>{{_('Create User')}}</h3>
     </div>
-  </div>
+    <div class="modal-body">
+        <form id="new-user" class="form-horizontal well" method="post" action="{{url_for('accounts.create')}}">
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="text" name="first_name" value="" class="required" placeholder="{{_('first name')}}" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="text" name="last_name" value="" class="required" placeholder="{{_('last name')}}" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="text" name="username" value="" class="required" placeholder="{{_('username')}}" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="text" name="email" value="" class="required email" placeholder="{{_('email')}}" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="password" name="password" value="" class="required" placeholder="{{_('password')}}" />
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn btn-large btn-cancel" data-dismiss="modal">{{_('Cancel')}}</a>
+        <a id="btn-create-user" href="#" class="btn btn-large btn-primary">{{_('Create')}}</a>
+    </div>
 </div>
+{% if users.items %}
+<table class="table table-striped table-bordered">
+    <tr>
+        <th>{{_('Username')}}</th>
+        <th></th>
+    </tr>
+    {% for user in users.items %}
+    <tr>
+        <td>{{user.username}}</td>
+        <td width="10%" class="center">
+            <a href="{{url_for('accounts.edit', uuid=user.uuid)}}" class="btn btn-mini" title="{{_('Edit')}}"><i class="icon-edit"></i></a>
+            <a class="btn btn-mini btn-danger btn-delete" data-username="{{user.username}}" title="{{_('Delete')}}"><i class="icon-trash icon-white"></i></a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<span class="info-large">{{_('There are no users')}}</span>
+{% endif %}
 
+<ul class="pager">
+    {% if users.has_prev() %}
+    <li class="previous{% if not users.has_prev() %} disabled{% endif %}">
+        <a href="{{url_for('accounts.index')}}?count={{users.per_page}}&page={{users.prev_num}}">&larr;</a>
+    </li>
+    {% endif %}
+    {% if users.has_next() %}
+    <li class="next{% if not users.has_next() %} disabled{% endif %}">
+        <a href="{{url_for('accounts.index')}}?count={{users.per_page}}&page={{users.next_num}}">&rarr;</a>
+    </li>
+    {% endif %}
+</ul>
 <script type="text/javascript">
-  $("a.btn-bill").click(function(){
-    var content = (this).getAttribute('data-content');
-    $("div#billContent").html(content);
-  });
-
-  $(function(){
-    $("#nav-bills").addClass('active');
-  });
+    function search() {
+        location.href = "{{url_for('accounts.index')}}?search=" + $("input#search-text").val();
+    };
+    $(function(){
+        $("a#btn-new-user").click(function(){
+            $("#modal-new-user").modal('toggle');
+        });
+        $("form#new-user").validate();
+        $("a#btn-create-user").click(function(){
+            $("form#new-user").submit();
+        });
+        $("a.btn-delete").click(function(){
+            if (confirm("{{_('Are you sure you want to delete the user?')}}")) {
+                location.href = '/accounts/' + $(this).attr('data-username') + '/delete';
+                return;
+            }
+        });
+        $("#search-text").keypress(function(e){
+            if (e.charCode == 13) {
+                search();
+            }
+        });
+        $("a#btn-search").click(function(){
+            search();
+        });
+    });
 </script>
 {% endblock %}
