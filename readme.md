@@ -40,6 +40,14 @@ OpenCloud allows multiple accounts for multiple providers (currently EC2 and Rac
       "provider_id": "ABCDEFGHIJKLMNOP",
       "provider_key": "1qaz2wsx3edc4rfv5tgb",
       "provider_data": {
+        "images": {
+          "<region>": [
+            {
+              "id": "ami-12345",
+              "name": "My Customer Image"
+            }
+          ]
+        },
         "keypair": "mykey"
       }
     },
