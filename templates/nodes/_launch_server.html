@@ -3,7 +3,7 @@
     <h3>{{_('Launch Node')}}</h3>
 </div>
 <div class="modal-body">
-    <form id="launch-node" class="form-horizontal well" method="post" action="{{url_for('dashboard.node_launch', provider=provider, region=region)}}">
+    <form id="launch-node" class="form-horizontal well" method="post" action="{{url_for('nodes.node_launch', provider=provider, region=region)}}">
         <fieldset>
             <div class="control-group">
                 <label class="control-label" for="name">{{_('Name')}}</label>

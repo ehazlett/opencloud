@@ -34,13 +34,13 @@
     function loadNodes(provider, region) {
         var org = $("#current-organization").val();
         var region = region ? region : '';
-        $("#tab-content-servers").load("/dashboard/nodes/" + provider + '/' + region);
+        $("#tab-content-servers").load("/nodes/" + provider + '/' + region);
     };
     $(function(){
         $("#btn-launch-server").click(function(){
             var region = $("ul.nav li.active a.tab").attr('data-region');
             $("#modal-launch-server").modal('toggle');
-            $("#modal-launch-server").load('/dashboard/nodes/{{provider}}/' + region + '/launch', function(data){
+            $("#modal-launch-server").load('/nodes/{{provider}}/' + region + '/launch', function(data){
             });
         });
         $(".tab").click(function(){
@@ -50,7 +50,7 @@
             loadNodes(provider, region);
         });
         $("select#current-organization").on('orgChange', function() {
-            location.href = "{{url_for('dashboard.index')}}";
+            location.href = "{{url_for('nodes.index')}}";
         });
         loadNodes('{{provider}}', $("ul.nav li.active a.tab").attr('data-region'));
     });

@@ -19,8 +19,9 @@ from flaskext.cache import Cache
 import messages
 from utils import cloud
 import config
+from nodes.models import NodeData
 
-bp = dashboard_blueprint = Blueprint('dashboard', __name__)
+bp = nodes_blueprint = Blueprint('nodes', __name__)
 app = config.create_app()
 cache = Cache(app)
 
@@ -59,9 +60,9 @@ def index(region=None):
         'regions': regions,
         'region': region,
     }
-    return render_template('dashboard/index.html', **ctx)
+    return render_template('nodes/index.html', **ctx)
 
-@bp.route('/nodes/<provider>/<region>/')
+@bp.route('/<provider>/<region>/')
 @login_required
 def nodes(provider=None, region=None):
     org = request.args.get('organization', session.get('default_organization'))
@@ -76,9 +77,9 @@ def nodes(provider=None, region=None):
         'region': region,
         'nodes': nodes,
     }
-    return render_template('dashboard/_nodes.html', **ctx)
+    return render_template('nodes/_nodes.html', **ctx)
 
-@bp.route('/nodes/<provider>/<region>/<node_id>/reboot')
+@bp.route('/<provider>/<region>/<node_id>/reboot')
 @login_required
 def node_reboot(provider=None, region=None, node_id=None):
     org = request.args.get('organization', session.get('default_organization'))
@@ -90,9 +91,9 @@ def node_reboot(provider=None, region=None, node_id=None):
         flash(messages.INSTANCE_REBOOTED)
         current_app.logger.info('{0} rebooted node {1} in {2} ({3})'.format(session.get('user').username, \
             node_id, provider, region))
-    return redirect(url_for('dashboard.index', region=region))
+    return redirect(url_for('nodes.index', region=region))
 
-@bp.route('/nodes/<provider>/<region>/<node_id>/stop')
+@bp.route('/<provider>/<region>/<node_id>/stop')
 @login_required
 def node_stop(provider=None, region=None, node_id=None):
     org = request.args.get('organization', session.get('default_organization'))
@@ -104,9 +105,9 @@ def node_stop(provider=None, region=None, node_id=None):
             flash(messages.INSTANCE_STOPPED)
             current_app.logger.info('{0} stopped node {1} in {2} ({3})'.format(session.get('user').username, \
                 node_id, provider, region))
-    return redirect(url_for('dashboard.index', region=region))
+    return redirect(url_for('nodes.index', region=region))
 
-@bp.route('/nodes/<provider>/<region>/<node_id>/destroy')
+@bp.route('/<provider>/<region>/<node_id>/destroy')
 @login_required
 def node_destroy(provider=None, region=None, node_id=None):
     org = request.args.get('organization', session.get('default_organization'))
@@ -118,9 +119,9 @@ def node_destroy(provider=None, region=None, node_id=None):
         flash(messages.INSTANCE_DESTROYED)
         current_app.logger.info('{0} destroyed node {1} in {2} ({3})'.format(session.get('user').username, \
             node_id, provider, region))
-    return redirect(url_for('dashboard.index', region=region))
+    return redirect(url_for('nodes.index', region=region))
 
-@bp.route('/nodes/<provider>/<region>/launch', methods=['GET', 'POST'])
+@bp.route('/<provider>/<region>/launch', methods=['GET', 'POST'])
 @login_required
 def node_launch(provider=None, region=None):
     org = request.args.get('organization', session.get('default_organization'))
@@ -143,7 +144,7 @@ def node_launch(provider=None, region=None):
             flash(messages.INSTANCE_LAUNCHED)
         except Exception, e:
             flash(e, 'error')
-        return redirect(url_for('dashboard.index', region=region))
+        return redirect(url_for('nodes.index', region=region))
     default_images = provider_info.get('provider_data').get('images', {}).get(region, None)
     ctx = {
         'provider': provider,
@@ -153,4 +154,42 @@ def node_launch(provider=None, region=None):
         'sizes': cloud.get_sizes(provider, region, provider_id, provider_key),
         'default_images': default_images,
     }
-    return render_template('dashboard/_launch_server.html', **ctx)
+    return render_template('nodes/_launch_server.html', **ctx)
+
+@bp.route('/<provider>/<region>/<node_id>/roles')
+@login_required
+def node_roles(provider=None, region=None, node_id=None):
+    org = request.args.get('organization', session.get('default_organization'))
+    provider_info = get_provider_info(provider)
+    node_data = None
+    if provider_info.get('provider'):
+        provider_id = provider_info.get('provider_id')
+        provider_key = provider_info.get('provider_key')
+        node_data = NodeData.get_by_node_id(node_id)
+        if not node_data:
+            node_data = NodeData()
+            node_data.node_id = node_id
+            node_data.save()
+    ctx = {
+        'provider': provider,
+        'provider_info': provider_info,
+        'region': region,
+        'node_id': node_id,
+        'node_data': node_data,
+    }
+    return render_template('nodes/_node_roles.html', **ctx)
+
+@bp.route('/<provider>/<region>/<node_id>/roles/set', methods=['POST'])
+@login_required
+def node_set_roles(provider=None, region=None, node_id=None):
+    org = request.args.get('organization', session.get('default_organization'))
+    provider_info = get_provider_info(provider)
+    node_data = None
+    if provider_info.get('provider'):
+        provider_id = provider_info.get('provider_id')
+        provider_key = provider_info.get('provider_key')
+        node_data = NodeData.get_by_node_id(node_id)
+        node_data.roles = request.form.get('roles', '').split()
+        node_data.save()
+        flash(messages.NODE_ROLES_UPDATED)
+    return redirect(url_for('nodes.index', region=region))
