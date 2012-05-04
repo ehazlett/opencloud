@@ -2,6 +2,9 @@ body {
   background-color: #fefefe;
   padding-top: 50px;
 }
+.navbar .brand {
+  color: #fefefe;
+}
 .content {
 }
 .hide {

@@ -67,9 +67,9 @@ REGIONS = {
 def create_app():
     """
     Flask app factory
-    
+
     :rtype: `flask.Flask`
-    
+
     """
     app = Flask(__name__)
     app.config.from_object('config')

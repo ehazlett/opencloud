@@ -105,7 +105,7 @@ def node_stop(provider=None, region=None, node_id=None):
             current_app.logger.info('{0} stopped node {1} in {2} ({3})'.format(session.get('user').username, \
                 node_id, provider, region))
     return redirect(url_for('dashboard.index', region=region))
- 
+
 @bp.route('/nodes/<provider>/<region>/<node_id>/destroy')
 @login_required
 def node_destroy(provider=None, region=None, node_id=None):

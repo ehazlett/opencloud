@@ -12,8 +12,23 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-from flaskext.wtf import Form, TextField, SelectField, widgets, validators
+from flaskext.wtf import Form, TextField, SelectField, Field, TextInput, widgets, validators
 from flaskext.babel import gettext
+
+class RoleListField(Field):
+    widget = TextInput()
+
+    def _value(self):
+        if self.data:
+            return u' '.join(self.data)
+        else:
+            return u''
+
+    def process_formdata(self, valuelist):
+        if valuelist:
+            self.data = [x.strip() for x in valuelist[0].split()]
+        else:
+            self.data = []
 
 class LoginForm(Form):
     username = TextField(gettext('Username'), validators=[validators.Required()])
@@ -31,3 +46,16 @@ class AccountForm(Form):
         widget=widgets.PasswordInput(), validators=[
             validators.EqualTo('password', message=gettext('Passwords do not match')),
         ])
+
+class AccountEditForm(Form):
+    first_name = TextField(gettext('First name'), validators=[validators.Required()])
+    last_name = TextField(gettext('Last name'), validators=[validators.Required()])
+    email = TextField(gettext('Email'), validators=[validators.Required()])
+    password = TextField(gettext('Password'), widget=widgets.PasswordInput(), validators=[
+            validators.EqualTo('confirm_password', message=''),
+    ])
+    confirm_password = TextField(gettext('Password (confirm)'), \
+        widget=widgets.PasswordInput(), validators=[
+            validators.EqualTo('password', message=gettext('Passwords do not match')),
+        ])
+    roles = RoleListField(gettext('Roles (space separated)'))

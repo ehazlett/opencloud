@@ -70,7 +70,7 @@ def format_image_size(size, provider):
         'ec2': size.get('id', 'n/a'),
     }
     return sizes.get(provider, size.get('name', 'n/a'))
-    
+
 @app.template_filter('log_level_name')
 def log_level_name(level):
     levels = {
@@ -118,5 +118,5 @@ if __name__=='__main__':
     if opts.create_user:
         create_user()
         sys.exit(0)
-        
+
     app.run(host=opts.host, debug=True)

@@ -4,7 +4,7 @@
 <input id="search-text" type="text" name="search" class="input-medium search-query" value="{% if search_query %}{{search_query}}{% endif %}"/>
 <a id="btn-search" href="#" class="btn"><i class="icon-search"></i></a>
 {% if user.is_admin() %}
-<a id="btn-clear-logs" href="#" class="btn btn-info">{{_('Clear')}}</a>
+<a id="btn-clear-logs" href="#" class="btn btn-danger" title="{{_('Clear Logs')}}"><i class="icon-trash icon-white"></i></a>
 {% endif %}
 {% endif %}
 {% endblock %}

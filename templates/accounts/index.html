@@ -9,7 +9,7 @@
 <div id="modal-new-user" class="modal hide">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">×</a>
-        <h3>{{_('Launch Node')}}</h3>
+        <h3>{{_('Create User')}}</h3>
     </div>
     <div class="modal-body">
         <form id="new-user" class="form-horizontal well" method="post" action="{{url_for('accounts.create')}}">
@@ -57,7 +57,7 @@
     <tr>
         <td>{{user.username}}</td>
         <td width="10%" class="center">
-            <a class="btn btn-mini btn-edit" data-username="{{user.username}}" title="{{_('Edit')}}"><i class="icon-edit"></i></a>
+            <a href="{{url_for('accounts.edit', uuid=user.uuid)}}" class="btn btn-mini" title="{{_('Edit')}}"><i class="icon-edit"></i></a>
             <a class="btn btn-mini btn-danger btn-delete" data-username="{{user.username}}" title="{{_('Delete')}}"><i class="icon-trash icon-white"></i></a>
         </td>
     </tr>

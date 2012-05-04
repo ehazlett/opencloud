@@ -17,7 +17,7 @@ from flask import request, render_template, jsonify, g, flash, redirect, url_for
 from flaskext.login import login_user, logout_user, login_required
 from config import create_app
 from accounts.models import User
-from accounts.forms import LoginForm, AccountForm
+from accounts.forms import LoginForm, AccountForm, AccountEditForm
 from decorators import admin_required
 import utils
 import messages
@@ -36,7 +36,7 @@ def index():
     if query:
         regex = re.compile(r'{0}'.format(re.escape(query), re.IGNORECASE))
         results = User.query.filter({ '$or': \
-            [{'name': regex}]}).ascending('username').paginate(page, count, error_out=False)
+            [{'username': regex}, {'first_name': regex}, {'last_name': regex}, {'email': regex}]}).ascending('username').paginate(page, count, error_out=False)
     else:
         results = User.query.ascending('username').paginate(page, count, error_out=False)
     ctx = {
@@ -57,6 +57,27 @@ def create():
     user.set_password(request.form.get('password', ''))
     user.save()
     return redirect(url_for('accounts.index'))
+
+@bp.route('/<uuid>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit(uuid=None):
+    user = User.get_by_uuid(uuid)
+    form = AccountEditForm(obj=user)
+    if form.validate_on_submit():
+        # validate
+        if user:
+            # update db
+            data = form.data
+            # update
+            user.update(**data)
+            flash(messages.USER_UPDATED)
+            return redirect(url_for('accounts.index'))
+    ctx = {
+        'user': user,
+        'form': form,
+    }
+    return render_template('accounts/settings.html', **ctx)
 
 @bp.route('/<username>/delete')
 @login_required

@@ -68,6 +68,7 @@
                 <ul class="dropdown-menu">
                   <li><a href="{{url_for('accounts.settings')}}">{{_('account')}}</a></li>
                   {% if 'admin' in session.user.roles %}
+                  <li class="divider"></li>
                   <li><a href="{{url_for('accounts.index')}}">{{_('accounts')}}</a></li>
                   <li class="divider"></li>
                   {% endif %}
@@ -81,7 +82,7 @@
         </div>
       </div>
     </div>
-    
+
     {% block base_content %}
     <div class="container-fluid content">
       <div>
