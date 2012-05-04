@@ -41,9 +41,7 @@ OpenCloud allows multiple accounts for multiple providers (currently EC2 and Rac
       "provider_key": "1qaz2wsx3edc4rfv5tgb",
       "provider_data": {
         "keypair": "mykey"
-      },
-      "ssh_user": "root",
-      "ssh_key": "-----BEGIN RSA PRIVATE KEY-----\nMLLEowIBBBKCAQEAxwQbvvT6M9xFMNDH7...\n-----END RSA PRIVATE KEY-----\n"
+      }
     },
     "second account": {
       "api_keys": [
@@ -52,9 +50,7 @@ OpenCloud allows multiple accounts for multiple providers (currently EC2 and Rac
       "provider": "rackspace",
       "provider_id": "myuseraccount",
       "provider_key": "1234567890abcdefghijklmnop",
-      "provider_data": {},
-      "ssh_user": "root",
-      "ssh_key": "-----BEGIN RSA PRIVATE KEY-----\nMLLEowIBBBKCAQEAxwQbvvT6M9xFMNDH7...\n-----END RSA PRIVATE KEY-----\n"
+      "provider_data": {}
     }
   }
 }
