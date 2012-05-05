@@ -2,6 +2,8 @@ OpenCloud : multi-account, multi-provider cloud manager
 =======================================================
 OpenCloud is a web application (written in Python using Flask) that manages various cloud platforms.
 
+OpenCloud supports multiple organizations that can have multiple accounts with various providers.
+
 Setup
 -----
 Prerequisites:
