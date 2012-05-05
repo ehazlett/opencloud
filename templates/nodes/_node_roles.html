@@ -6,7 +6,7 @@
     <form id="node-roles" class="form-vertical well" method="post" action="{{url_for('nodes.node_set_roles', provider=provider, region=region, node_id=node_id)}}">
         <fieldset>
             <div class="control-group">
-                <label class="control-label" for="name">{{_('Roles (space separated)')}}</label>
+                <label class="control-label" for="name">{{_('Roles')}}</label>
                 <div class="controls">
                     <input id="roles" name="roles" class="input-xlarge" value="{{node_data.roles|join(' ')}}" />
                 </div>
