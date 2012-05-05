@@ -9,7 +9,7 @@
         <fieldset>
             <div class="control-group">
                 <div class="controls">
-                    <input type="text" name="username" value="" class="input-xlarge required" placeholder="{{_('username')}}" />
+                    <input type="text" name="username" value="" class="input-xlarge required" placeholder="{{_('username')}}" autofocus="true" />
                 </div>
             </div>
             <div class="control-group">
@@ -43,7 +43,6 @@
   });
 
   $(function(){
-    $("input#username").focus();
     $("form#login").validate();
   });
 </script>

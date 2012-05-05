@@ -174,7 +174,7 @@ def node_set_roles(provider=None, region=None, node_id=None):
         node_data = NodeData.get_by_node_id(node_id)
         node_data.roles = roles
         node_data.save()
-        current_app.logger.info('{0} ({1}) update roles for node {2} in {3} ({4}): {5}'.format(session.get('user').username, \
+        current_app.logger.info('{0} ({1}) updated roles for node {2} in {3} ({4}): {5}'.format(session.get('user').username, \
             session.get('organization').name, node_id, provider, region, roles))
         flash(messages.NODE_ROLES_UPDATED)
     return redirect(url_for('nodes.index', region=region))

@@ -116,6 +116,7 @@ def create_user():
         u.email = email
         u.organization = Organization.get_by_name('default').uuid
         u.set_password(password)
+        u.add_role('admin')
         u.save()
         print('User created/updated successfully...')
     except KeyboardInterrupt:
@@ -125,7 +126,7 @@ if __name__=='__main__':
     from optparse import OptionParser
     op = OptionParser()
     op.add_option('--host', dest='host', action='store', default='127.0.0.1', help='Hostname/IP on which to listen')
-    op.add_option('--create-user', dest='create_user', action='store_true', default=False, help='Create/update user')
+    op.add_option('--create-user', dest='create_user', action='store_true', default=False, help='Create/update an admin user')
     opts, args = op.parse_args()
 
     if opts.create_user:
