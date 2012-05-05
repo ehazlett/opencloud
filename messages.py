@@ -15,6 +15,7 @@
 from flaskext.babel import gettext
 
 ACCESS_DENIED = gettext('Access denied.')
+ACCOUNT_INACTIVE = gettext('Your account is not active')
 ACCOUNT_UPDATED = gettext('Account updated.')
 INSTANCE_DESTROYED = gettext('Instance destroyed')
 INSTANCE_LAUNCHED = gettext('Instance launched...')
@@ -26,4 +27,7 @@ LOGGED_IN = gettext('Welcome back...!')
 LOGGED_OUT = gettext('You have been logged out.')
 NO_API_KEY = gettext('No API key specified')
 NODE_ROLES_UPDATED = gettext('Node roles updated')
+ORGANIZATION_REQUIRED = gettext('You must specify an organization')
+PROVIDER_REQUIRED = gettext('You must specify a provider')
+REGION_REQUIRED = gettext('You must specify a region')
 USER_UPDATED = gettext('User account updated')
