@@ -43,6 +43,7 @@ class User(db.Document):
     password = db.StringField(required=False)
     roles = db.ListField(db.StringField(), required=False, default=[])
     active = db.BoolField(default=True)
+    api_key = db.StringField(default='')
 
     def get_id(self):
         return self.uuid
@@ -100,3 +101,7 @@ class User(db.Document):
     @classmethod
     def get_by_uuid(self, uuid=None):
         return self.query.filter(User.uuid==uuid).first()
+
+    @classmethod
+    def get_by_api_key(self, api_key=None):
+        return self.query.filter(User.api_key==api_key).first()

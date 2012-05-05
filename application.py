@@ -27,7 +27,7 @@ from flaskext.cache import Cache
 import config
 from utils import cloud
 from raven.contrib.flask import Sentry
-#from api.views import api_blueprint
+from api.views import api_blueprint
 from accounts.views import accounts_blueprint
 from nodes.views import nodes_blueprint
 from logs.views import logs_blueprint
@@ -37,7 +37,7 @@ from utils.logger import MongoDBHandler
 sentry = Sentry(config.SENTRY_DSN)
 
 app = config.create_app()
-#app.register_blueprint(api_blueprint, url_prefix='/api')
+app.register_blueprint(api_blueprint, url_prefix='/api')
 app.register_blueprint(accounts_blueprint, url_prefix='/accounts')
 app.register_blueprint(nodes_blueprint, url_prefix='/nodes')
 app.register_blueprint(logs_blueprint, url_prefix='/logs')

@@ -46,6 +46,7 @@ class AccountForm(Form):
         widget=widgets.PasswordInput(), validators=[
             validators.EqualTo('password', message=gettext('Passwords do not match')),
         ])
+    api_key = TextField(gettext('API Key'))
 
 class AccountEditForm(Form):
     first_name = TextField(gettext('First name'), validators=[validators.Required()])

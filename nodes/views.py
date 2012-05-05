@@ -17,32 +17,13 @@ from flask import request, render_template, jsonify, g, flash, redirect, url_for
 from flaskext.login import login_required
 from flaskext.cache import Cache
 import messages
-from utils import cloud
+from utils import cloud, get_provider_info
 import config
 from nodes.models import NodeData
 
 bp = nodes_blueprint = Blueprint('nodes', __name__)
 app = config.create_app()
 cache = Cache(app)
-
-def get_provider_info(provider=None):
-    data = {}
-    org = request.args.get('organization', session.get('default_organization'))
-    org_data = current_app.config.get('APP_CONFIG').get('organizations').get(org)
-    provider_id = None
-    provider_key = None
-    provider_data = None
-    if org_data:
-        provider_id = org_data.get('provider_id')
-        provider_key = org_data.get('provider_key')
-        provider_data = org_data.get('provider_data')
-    data.update(
-        provider = provider,
-        provider_id = provider_id,
-        provider_key = provider_key,
-        provider_data = provider_data
-    )
-    return data
 
 @bp.route('/')
 @bp.route('/<region>')

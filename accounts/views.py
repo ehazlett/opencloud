@@ -19,6 +19,7 @@ from config import create_app
 from accounts.models import User
 from accounts.forms import LoginForm, AccountForm, AccountEditForm
 from decorators import admin_required
+from uuid import uuid4
 import utils
 import messages
 import re
@@ -135,6 +136,11 @@ def settings():
         'form': form,
     }
     return render_template('accounts/settings.html', **ctx)
+
+@bp.route('/generateapikey')
+@login_required
+def generate_api_key():
+    return str(uuid4())
 
 @bp.route('/setdefaultorg/', methods=['POST'])
 @login_required

@@ -6,8 +6,18 @@
     {% endif %}
     {% endif %}
     <div class="controls">
-    {{field(**kwargs)}}
-    <p class="help-block">{{field.errors|join('')}}</p>
+        {{field(**kwargs)}}
+        {% if field.name == 'api_key' %}
+        <a class="btn btn-mini btn-generate-api-key" title="{{_('Generate API Key')}}"><i class="icon-refresh"></i></a>
+        <script type="text/javascript">
+            $("a.btn-generate-api-key").click(function(){
+                $.get("{{url_for('accounts.generate_api_key')}}", function(data){
+                    $("input#api_key").val(data);
+                });
+            });
+        </script>
+        {% endif %}
+        <p class="help-block">{{field.errors|join('')}}</p>
     </div>
 </div>
 {% endmacro %}
