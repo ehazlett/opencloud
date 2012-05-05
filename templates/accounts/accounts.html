@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block page_header_toolbar %}
+<a id="btn-new-account" href="#" class="btn"><i class="icon-globe"></i> {{_('New Account')}}</a>
+<input id="search-text" type="text" name="search" class="input-medium search-query" value="{% if search_query %}{{search_query}}{% endif %}"/>
+<a id="btn-search" href="#" class="btn"><i class="icon-search"></i></a>
+{% endblock %}
+
+{% block main_content %}
+<div id="modal-new-account" class="modal hide">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>{{_('Create Account')}}</h3>
+    </div>
+    <div class="modal-body">
+        <form id="new-account" class="form-horizontal well" method="post" action="{{url_for('accounts.create_account')}}">
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="text" name="name" value="" class="required" placeholder="{{_('name')}}" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="text" name="provider" value="" class="span2 required" placeholder="{{_('provider')}}" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="text" name="provider_id" value="" class="required" placeholder="{{_('provider id')}}" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="text" name="provider_key" value="" class="required" placeholder="{{_('provider key')}}" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        {% if user.is_admin() %}
+                        <select name="organization" class="required">
+                            <option value="">-----</option>
+                            {% for org in organizations %}
+                            <option value="{{org.uuid}}">{{org.name}}</option>
+                            {% endfor %}
+                        </select>
+                        {% else %}
+                        <input type="hidden" name="organization" value="{{org.uuid}}" />
+                        {% endif %}
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn btn-large btn-cancel" data-dismiss="modal">{{_('Cancel')}}</a>
+        <a id="btn-create-account" href="#" class="btn btn-large btn-primary">{{_('Create')}}</a>
+    </div>
+</div>
+{% if accounts.items %}
+<table class="table table-striped table-bordered">
+    <tr>
+        <th>{{_('Name')}}</th>
+        <th>{{_('Provider')}}</th>
+        <th></th>
+    </tr>
+    {% for account in accounts.items %}
+    <tr>
+        <td>{{account.name}}</td>
+        <td>{{account.provider}}</td>
+        <td width="10%" class="center">
+            <a href="{{url_for('accounts.edit_account', uuid=account.uuid)}}" class="btn btn-mini" title="{{_('Edit')}}"><i class="icon-edit"></i></a>
+            <a class="btn btn-mini btn-danger btn-delete" data-uuid="{{account.uuid}}" title="{{_('Delete')}}"><i class="icon-trash icon-white"></i></a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<span class="info-large">{{_('There are no accounts')}}</span>
+{% endif %}
+
+<ul class="pager">
+    {% if accounts.has_prev() %}
+    <li class="previous{% if not accounts.has_prev() %} disabled{% endif %}">
+        <a href="{{url_for('accounts.accounts')}}?count={{accounts.per_page}}&page={{accounts.prev_num}}">&larr;</a>
+    </li>
+    {% endif %}
+    {% if accounts.has_next() %}
+    <li class="next{% if not accounts.has_next() %} disabled{% endif %}">
+        <a href="{{url_for('accounts.accounts')}}?count={{accounts.per_page}}&page={{accounts.next_num}}">&rarr;</a>
+    </li>
+    {% endif %}
+</ul>
+<script type="text/javascript">
+    function search() {
+        location.href = "{{url_for('accounts.accounts')}}?search=" + $("input#search-text").val();
+    };
+    $(function(){
+        $("a#btn-new-account").click(function(){
+            $("#modal-new-account").modal('toggle');
+        });
+        $("form#new-account").validate();
+        $("a#btn-create-account").click(function(){
+            $("form#new-account").submit();
+        });
+        $("a.btn-delete").click(function(){
+            if (confirm("{{_('Are you sure you want to delete the account?')}}")) {
+                location.href = '/' + $(this).attr('data-uuid') + '/delete';
+                return;
+            }
+        });
+        $("#search-text").keypress(function(e){
+            if (e.charCode == 13) {
+                search();
+            }
+        });
+        $("a#btn-search").click(function(){
+            search();
+        });
+    });
+</script>
+{% endblock %}

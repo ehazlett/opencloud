@@ -31,9 +31,8 @@ from api.views import api_blueprint
 from accounts.views import accounts_blueprint
 from nodes.views import nodes_blueprint
 from logs.views import logs_blueprint
-from accounts.models import User
+from accounts.models import Organization, Account, User
 from utils.logger import MongoDBHandler
-from accounts.models import Organization
 
 sentry = Sentry(config.SENTRY_DSN)
 
@@ -51,6 +50,13 @@ login_manager.setup_app(app)
 mongodb_handler = MongoDBHandler()
 mongodb_handler.setLevel(app.config.get('LOG_LEVEL'))
 app.logger.addHandler(mongodb_handler)
+
+@app.context_processor
+def load_accounts():
+    accounts = None
+    if session.get('organization'):
+        accounts = Account.query.filter({'organization': session.get('organization').uuid}).ascending('name').all()
+    return {'org_accounts': accounts}
 
 @app.context_processor
 def load_user():

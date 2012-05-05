@@ -16,7 +16,7 @@ from flask import Blueprint
 from flask import request, render_template, jsonify, g, flash, redirect, url_for, session, current_app
 from flaskext.login import login_user, logout_user, login_required
 from config import create_app
-from accounts.models import Organization, User
+from accounts.models import Organization, Account, User
 from accounts.forms import LoginForm, UserForm, UserEditForm, OrganizationForm
 from decorators import admin_required
 from uuid import uuid4
@@ -86,7 +86,72 @@ def delete_organizations(uuid=None):
     if org:
         org.remove()
     return redirect(url_for('accounts.organizations'))
+    
+# accounts
+@bp.route('/', methods=['GET'])
+@login_required
+@admin_required
+def accounts():
+    count = int(request.args.get('count', 15))
+    page = int(request.args.get('page', 1))
+    query = request.args.get('search', None)
+    if query:
+        regex = re.compile(r'{0}'.format(re.escape(query), re.IGNORECASE))
+        results = Account.query.filter({ '$or': \
+            [{'name': regex}]}).paginate(page, count, error_out=False)
+    else:
+        results = Account.query.ascending('name').paginate(page, count, error_out=False)
+    ctx = {
+        'accounts': results,
+        'organizations': Organization.query.ascending('name').all(),
+        'search_query': query,
+    }
+    return render_template('accounts/accounts.html', **ctx)
 
+@bp.route('/create', methods=['POST'])
+@login_required
+@admin_required
+def create_account():
+    act = Account()
+    act.name = request.form.get('name')
+    act.provider = request.form.get('provider')
+    act.provider_id = request.form.get('provider_id')
+    act.provider_key = request.form.get('provider_key')
+    act.organization = request.form.get('organization').lower()
+    act.save()
+    return redirect(url_for('accounts.accounts'))
+    
+@bp.route('/<uuid>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_account(uuid=None):
+    account = Account.get_by_uuid(uuid)
+    if request.method == 'POST':
+        if account:
+            account.name = request.form.get('name')
+            account.provider = request.form.get('provider')
+            account.provider_id = request.form.get('provider_id')
+            account.provider_key = request.form.get('provider_key')
+            account.keypair = request.form.get('keypair', '')
+            account.save()
+            flash(messages.ACCOUNT_UPDATED)
+            return redirect(url_for('accounts.accounts'))
+    ctx = {
+        'account': account,
+        'organizations': Organization.query.ascending('name').all()
+    }
+    return render_template('accounts/edit_account.html', **ctx)
+    
+@bp.route('/<uuid>/delete')
+@login_required
+@admin_required
+def delete_account(uuid=None):
+    account = Account.get_by_uuid(uuid)
+    if account:
+        account.remove()
+    return redirect(url_for('accounts.accounts'))
+    
+# users
 @bp.route('/users/', methods=['GET'])
 @login_required
 @admin_required

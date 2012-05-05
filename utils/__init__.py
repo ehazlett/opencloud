@@ -14,6 +14,7 @@
 #    limitations under the License.
 import hashlib
 from flask import current_app, session, request
+from accounts.models import Organization, Account
 
 def hash_password(password=None):
     try:
@@ -25,18 +26,21 @@ def hash_password(password=None):
     h.update(password)
     return h.hexdigest()
 
-def get_provider_info(provider=None, account=None):
+def get_provider_info(provider=None, organization=None, account=None):
     data = {}
+    if not organization:
+        organization = request.args.get('organization', None)
     if not account:
-        account = request.args.get('account', session.get('default_account'))
-    account_data = current_app.config.get('APP_CONFIG').get('accounts').get(account)
+        account = request.args.get('account', None)
+    organization = Organization.get_by_name(organization)
+    account = Account.query.filter({'organization': organization.uuid, 'name': account}).first()
     provider_id = None
     provider_key = None
     provider_data = None
-    if account_data:
-        provider_id = account_data.get('provider_id')
-        provider_key = account_data.get('provider_key')
-        provider_data = account_data.get('provider_data')
+    if account:
+        provider_id = account.provider_id
+        provider_key = account.provider_key
+        provider_data = {}
     data.update(
         provider = provider,
         provider_id = provider_id,

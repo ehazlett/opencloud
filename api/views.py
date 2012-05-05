@@ -54,7 +54,7 @@ def nodes(account=None, provider=None, region=None):
     if node_id:
         node_id = [node_id]
     nodes = None
-    provider_info = get_provider_info(provider, account=account)
+    provider_info = get_provider_info(provider, session.get('organization').name, account=account.name)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')

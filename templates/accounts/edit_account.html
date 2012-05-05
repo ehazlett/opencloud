@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block base_content %}
+<div class="container">
+<div class="span5 offset3 content">
+    <form id="form-account" class="form-horizontal well" method="POST">
+      <fieldset>
+          <div class="control-group">
+              <div class="controls">
+                  <input type="text" name="name" value="{{account.name}}" class="required" placeholder="{{_('name')}}" />
+              </div>
+          </div>
+          <div class="control-group">
+              <div class="controls">
+                  <input type="text" name="provider" value="{{account.provider}}" class="span2 required" placeholder="{{_('provider')}}" />
+              </div>
+          </div>
+          <div class="control-group">
+              <div class="controls">
+                  <input type="text" name="provider_id" value="{{account.provider_id}}" class="required" placeholder="{{_('provider id')}}" />
+              </div>
+          </div>
+          <div class="control-group">
+              <div class="controls">
+                  <input type="text" name="provider_key" value="{{account.provider_key}}" class="required" placeholder="{{_('provider key')}}" />
+              </div>
+          </div>
+          {% if account.provider == 'ec2' %}
+          <div class="control-group">
+                <div class="controls">
+                    <input type="text" name="keypair" value="{{account.keypair}}" class="required" placeholder="{{_('keypair')}}" />
+                </div>
+          </div>
+          {% endif %}
+          <div class="control-group">
+              <div class="controls">
+                  <select name="organization" class="required">
+                      <option value="">-----</option>
+                      {% for org in organizations %}
+                      <option value="{{org.uuid}}" {% if org.uuid == account.organization %}selected="true"{% endif %}>{{org.name}}</option>
+                      {% endfor %}
+                  </select>
+              </div>
+          </div>
+      </fieldset>
+      <div class="form-actions">
+        <button id="form-save" class="btn btn-large btn-primary">{{_('Save')}}</button>
+        <a href="{{url_for('accounts.accounts')}}" class="btn btn-large">{{_('Cancel')}}</a>
+      </div>
+    </form>
+</div>
+</div>
+<script type="text/javascript">
+  $("#form-save").click(function(){
+    $("#form-save").submit();
+  });
+
+  $(function(){
+  });
+</script>
+{% endblock %}

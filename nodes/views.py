@@ -20,6 +20,7 @@ import messages
 from utils import cloud, get_provider_info
 import config
 from nodes.models import NodeData
+from accounts.models import Organization, Account
 
 bp = nodes_blueprint = Blueprint('nodes', __name__)
 app = config.create_app()
@@ -31,9 +32,9 @@ cache = Cache(app)
 def index(region=None):
     regions = []
     provider = None
-    account_data = current_app.config.get('APP_CONFIG').get('accounts').get(session.get('default_account'))
+    account_data = Account.query.filter({'organization': session.get('organization').uuid, 'name': session.get('default_account')}).first()
     if account_data:
-        provider = account_data.get('provider')
+        provider = account_data.provider
         if current_app.config.get('REGIONS').get(provider):
             regions = [x.get('name') for x in current_app.config.get('REGIONS').get(provider)]
     ctx = {
@@ -48,7 +49,7 @@ def index(region=None):
 def nodes(provider=None, region=None):
     account = request.args.get('account', session.get('default_account'))
     nodes = None
-    provider_info = get_provider_info(provider)
+    provider_info = get_provider_info(provider, session.get('organization').name, account)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
@@ -63,7 +64,8 @@ def nodes(provider=None, region=None):
 @bp.route('/<provider>/<region>/<node_id>/reboot')
 @login_required
 def node_reboot(provider=None, region=None, node_id=None):
-    provider_info = get_provider_info(provider)
+    account = request.args.get('account', session.get('default_account'))
+    provider_info = get_provider_info(provider, session.get('organization').name, account)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
@@ -76,7 +78,8 @@ def node_reboot(provider=None, region=None, node_id=None):
 @bp.route('/<provider>/<region>/<node_id>/stop')
 @login_required
 def node_stop(provider=None, region=None, node_id=None):
-    provider_info = get_provider_info(provider)
+    account = request.args.get('account', session.get('default_account'))
+    provider_info = get_provider_info(provider, session.get('organization').name, account)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
@@ -89,7 +92,8 @@ def node_stop(provider=None, region=None, node_id=None):
 @bp.route('/<provider>/<region>/<node_id>/destroy')
 @login_required
 def node_destroy(provider=None, region=None, node_id=None):
-    provider_info = get_provider_info(provider)
+    account = request.args.get('account', session.get('default_account'))
+    provider_info = get_provider_info(provider, session.get('organization').name, account)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
@@ -103,7 +107,8 @@ def node_destroy(provider=None, region=None, node_id=None):
 @login_required
 def node_launch(provider=None, region=None):
     nodes = None
-    provider_info = get_provider_info(provider)
+    account = request.args.get('account', session.get('default_account'))
+    provider_info = get_provider_info(provider, session.get('organization').name, account)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
@@ -136,7 +141,8 @@ def node_launch(provider=None, region=None):
 @bp.route('/<provider>/<region>/<node_id>/roles')
 @login_required
 def node_roles(provider=None, region=None, node_id=None):
-    provider_info = get_provider_info(provider)
+    account = request.args.get('account', session.get('default_account'))
+    provider_info = get_provider_info(provider, session.get('organization').name, account)
     node_data = None
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
@@ -158,7 +164,8 @@ def node_roles(provider=None, region=None, node_id=None):
 @bp.route('/<provider>/<region>/<node_id>/roles/set', methods=['POST'])
 @login_required
 def node_set_roles(provider=None, region=None, node_id=None):
-    provider_info = get_provider_info(provider)
+    account = request.args.get('account', session.get('default_account'))
+    provider_info = get_provider_info(provider, session.get('organization').name, account)
     node_data = None
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
