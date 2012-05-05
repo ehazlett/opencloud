@@ -31,13 +31,13 @@ from api.views import api_blueprint
 from accounts.views import accounts_blueprint
 from nodes.views import nodes_blueprint
 from logs.views import logs_blueprint
-from accounts.models import User
+from accounts.models import Organization, Account, User
 from utils.logger import MongoDBHandler
 
 sentry = Sentry(config.SENTRY_DSN)
 
 app = config.create_app()
-app.register_blueprint(api_blueprint, url_prefix='/api')
+app.register_blueprint(api_blueprint, url_prefix='/api/v1')
 app.register_blueprint(accounts_blueprint, url_prefix='/accounts')
 app.register_blueprint(nodes_blueprint, url_prefix='/nodes')
 app.register_blueprint(logs_blueprint, url_prefix='/logs')
@@ -50,6 +50,13 @@ login_manager.setup_app(app)
 mongodb_handler = MongoDBHandler()
 mongodb_handler.setLevel(app.config.get('LOG_LEVEL'))
 app.logger.addHandler(mongodb_handler)
+
+@app.context_processor
+def load_accounts():
+    accounts = None
+    if session.get('organization'):
+        accounts = Account.query.filter({'organization': session.get('organization').uuid}).ascending('name').all()
+    return {'org_accounts': accounts}
 
 @app.context_processor
 def load_user():
@@ -81,6 +88,11 @@ def log_level_name(level):
         50: 'critical',
     }
     return levels.get(level, 'unknown')
+
+@app.template_filter('get_org_from_uuid')
+def get_org_from_uuid(uuid):
+    return Organization.get_by_uuid(uuid).name
+
 # ----- end filters
 
 @app.route('/')
@@ -102,7 +114,9 @@ def create_user():
                 print('Passwords do not match... Try again...')
         u = User(username=username)
         u.email = email
+        u.organization = Organization.get_by_name('default').uuid
         u.set_password(password)
+        u.add_role('admin')
         u.save()
         print('User created/updated successfully...')
     except KeyboardInterrupt:
@@ -112,7 +126,7 @@ if __name__=='__main__':
     from optparse import OptionParser
     op = OptionParser()
     op.add_option('--host', dest='host', action='store', default='127.0.0.1', help='Hostname/IP on which to listen')
-    op.add_option('--create-user', dest='create_user', action='store_true', default=False, help='Create/update user')
+    op.add_option('--create-user', dest='create_user', action='store_true', default=False, help='Create/update an admin user')
     opts, args = op.parse_args()
 
     if opts.create_user:

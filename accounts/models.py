@@ -32,8 +32,60 @@ def username_validator(username):
     # TODO: check if username exists
     return retval
 
+class Organization(db.Document):
+    config_collection_name = 'accounts_organization'
+
+    uuid = db.ComputedField(db.StringField(), lambda x: str(uuid4()), one_time=True)
+    name = db.StringField()
+    owner = db.StringField()
+    api_key = db.StringField(default='')
+
+    def update(self, **kwargs):
+        # remove any key not in organization
+        for k in kwargs.keys():
+            if k not in self._fields.keys():
+                kwargs.pop(k)
+        q = self.query.filter_by(uuid=self.uuid).set(**kwargs)
+        q.execute()
+
+    @classmethod
+    def get_by_name(self, name=None):
+        return self.query.filter(Organization.name==name).first()
+
+    @classmethod
+    def get_by_api_key(self, api_key=None):
+        return self.query.filter(Organization.api_key==api_key).first()
+
+    @classmethod
+    def get_by_uuid(self, uuid=None):
+        return self.query.filter(Organization.uuid==uuid).first()
+
+class Account(db.Document):
+    config_collection_name = 'accounts_account'
+
+    uuid = db.ComputedField(db.StringField(), lambda x: str(uuid4()), one_time=True)
+    name = db.StringField()
+    organization = db.StringField()
+    provider = db.StringField()
+    provider_id = db.StringField()
+    provider_key = db.StringField()
+    default_images = db.DictField(db.StringField(), required=False, default={})
+    keypair = db.StringField(required=False, default='')
+
+    def update(self, **kwargs):
+        # remove any key not in organization
+        for k in kwargs.keys():
+            if k not in self._fields.keys():
+                kwargs.pop(k)
+        q = self.query.filter_by(uuid=self.uuid).set(**kwargs)
+        q.execute()
+
+    @classmethod
+    def get_by_uuid(self, uuid=None):
+        return self.query.filter(Account.uuid==uuid).first()
+
 class User(db.Document):
-    config_collection_name = 'users'
+    config_collection_name = 'accounts_user'
 
     uuid = db.ComputedField(db.StringField(), lambda x: str(uuid4()), one_time=True)
     username = db.StringField(validator=username_validator)
@@ -44,6 +96,7 @@ class User(db.Document):
     roles = db.ListField(db.StringField(), required=False, default=[])
     active = db.BoolField(default=True)
     api_key = db.StringField(default='')
+    organization = db.StringField(default='')
 
     def get_id(self):
         return self.uuid
@@ -95,8 +148,8 @@ class User(db.Document):
         q.execute()
 
     @classmethod
-    def get_by_username(self, username=None):
-        return self.query.filter(User.username==username).first()
+    def get_by_username(self, username=None, organization_id=None):
+        return self.query.filter({'username': username, 'organization': organization_id}).first()
 
     @classmethod
     def get_by_uuid(self, uuid=None):

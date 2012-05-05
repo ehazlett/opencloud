@@ -43,7 +43,7 @@ span.info-large {
   font-size: 200%;
   color: #d1d1d1;
 }
-select#current-organization {
+select#current-account {
   position: relative;
   top: 5px;
 }

@@ -25,14 +25,14 @@
         </div>
         {% else %}
         <div>
-            <span class="info-large">{{_('Select an organization')}}</span>
+            <span class="info-large">{{_('Select an account')}}</span>
         </div>
         {% endif %}
     </div>
 </div>
 <script type="text/javascript">
     function loadNodes(provider, region) {
-        var org = $("#current-organization").val();
+        var account = $("#current-account").val();
         var region = region ? region : '';
         $("#tab-content-servers").load("/nodes/" + provider + '/' + region);
     };
@@ -49,7 +49,7 @@
             var region = $(this).attr('data-region');
             loadNodes(provider, region);
         });
-        $("select#current-organization").on('orgChange', function() {
+        $("select#current-account").on('accountChange', function() {
             location.href = "{{url_for('nodes.index')}}";
         });
         loadNodes('{{provider}}', $("ul.nav li.active a.tab").attr('data-region'));

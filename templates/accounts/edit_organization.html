@@ -4,7 +4,7 @@
 {% block base_content %}
 <div class="container">
 <div class="span5 offset3 content">
-    <form id="form-account" class="form-horizontal well" method="POST">
+    <form id="form-organization" class="form-horizontal well" method="POST">
       <fieldset>
         {% for field in form %}
         {{render_field(field)}}
@@ -12,7 +12,7 @@
       </fieldset>
       <div class="form-actions">
         <button id="form-save" class="btn btn-large btn-primary">{{_('Save')}}</button>
-        <a href="{{url_for('accounts.index')}}" class="btn btn-large">{{_('Cancel')}}</a>
+        <a href="{{url_for('accounts.organizations')}}" class="btn btn-large">{{_('Cancel')}}</a>
       </div>
     </form>
 </div>

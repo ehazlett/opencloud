@@ -57,11 +57,11 @@
             <ul class="nav pull-right">
               {% if session.user %}
               <li>
-                <select id="current-organization" name="current-organization" class="span2">
+                <select id="current-account" name="current-account" class="span2">
                   <option value="">-----</option>
-                  {% with default_org = session.get('default_organization') %}
-                  {% for org in config.get('APP_CONFIG').get('organizations') %}
-                  <option value="{{org}}" {% if org == default_org %}selected="true"{% endif %}>{{org}}</option>
+                  {% with default_account = session.get('default_account') %}
+                  {% for account in org_accounts %}
+                  <option value="{{account.name}}" {% if account.name == default_account %}selected="true"{% endif %}>{{account.name}}</option>
                   {% endfor %}
                   {% endwith %}
                 </select>
@@ -69,10 +69,14 @@
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{session.user.username}} <b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                  <li><a href="{{url_for('accounts.settings')}}">{{_('account')}}</a></li>
-                  {% if 'admin' in session.user.roles %}
+                  <li><a href="{{url_for('accounts.account_settings')}}">{{_('settings')}}</a></li>
+                  {% if user.is_admin() or session.get('organization').owner == user.uuid %}
+                  {% endif %}
+                  {% if user.is_admin() %}
                   <li class="divider"></li>
-                  <li><a href="{{url_for('accounts.index')}}">{{_('accounts')}}</a></li>
+                  <li><a href="{{url_for('accounts.organizations')}}">{{_('organizations')}}</a></li>
+                  <li><a href="{{url_for('accounts.accounts')}}">{{_('accounts')}}</a></li>
+                  <li><a href="{{url_for('accounts.users')}}">{{_('users')}}</a></li>
                   <li class="divider"></li>
                   {% endif %}
                   <li><a href="{{url_for('accounts.logout')}}">{{_('logout')}}</a></li>
@@ -96,7 +100,7 @@
     </div>
     {% endblock %}
     <footer>
-      <div>&copy; {{config.get('APP_NAME')}} Project</div>
+      <div>&copy; <a href="https://github.com/ehazlett/opencloud" target="_gh">{{config.get('APP_NAME')}} Project</a></div>
     </footer>
     <!-- scripts -->
     <script type="text/javascript" src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
@@ -112,13 +116,13 @@
           {% if messages %}
           $(".alert").alert();
           {% endif %}
-          $("select#current-organization").bind('change keypress', function() {
-              var currentOrg = $(this).val();
+          $("select#current-account").bind('change keypress', function() {
+              var currentAccount = $(this).val();
               $.ajax({
                   type: 'POST',
-                  url: "{{url_for('accounts.set_default_org')}}",
-                  data: {'org': currentOrg},
-                  success: function(data) { $("select#current-organization").trigger('orgChange'); }
+                  url: "{{url_for('accounts.set_default_account')}}",
+                  data: {'account': currentAccount},
+                  success: function(data) { $("select#current-account").trigger('accountChange'); }
               });
           });
       });

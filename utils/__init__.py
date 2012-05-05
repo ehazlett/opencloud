@@ -13,7 +13,9 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 import hashlib
-from flask import current_app, session, request
+from flask import current_app, session, request, Response, json
+from bson import json_util
+from accounts.models import Organization, Account
 
 def hash_password(password=None):
     try:
@@ -25,18 +27,21 @@ def hash_password(password=None):
     h.update(password)
     return h.hexdigest()
 
-def get_provider_info(provider=None, organization=None):
+def get_provider_info(provider=None, organization=None, account=None):
     data = {}
     if not organization:
-        organization = request.args.get('organization', session.get('default_organization'))
-    org_data = current_app.config.get('APP_CONFIG').get('organizations').get(organization)
+        organization = request.args.get('organization', None)
+    if not account:
+        account = request.args.get('account', None)
+    organization = Organization.get_by_name(organization)
+    account = Account.query.filter({'organization': organization.uuid, 'name': account}).first()
     provider_id = None
     provider_key = None
     provider_data = None
-    if org_data:
-        provider_id = org_data.get('provider_id')
-        provider_key = org_data.get('provider_key')
-        provider_data = org_data.get('provider_data')
+    if account:
+        provider_id = account.provider_id
+        provider_key = account.provider_key
+        provider_data = {}
     data.update(
         provider = provider,
         provider_id = provider_id,
@@ -44,3 +49,19 @@ def get_provider_info(provider=None, organization=None):
         provider_data = provider_data
     )
     return data
+    
+def generate_api_response(data, status=200, content_type='application/json'):
+    """
+    `flask.Response` factory for api responses
+
+    :param data: Data that gets serialized to JSON
+    :param status: Status code (default: 200)
+    :param content_type: Content type (default: application/json)
+
+    """
+    indent = None
+    if request.args.get('pretty'):
+        indent = 2
+    data = json.dumps(data, sort_keys=True, indent=indent, default=json_util.default)
+    resp = Response(data, status=status, content_type=content_type)
+    return resp

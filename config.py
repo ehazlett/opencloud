@@ -17,7 +17,6 @@ from flask import Flask
 from flask import json
 import logging
 
-APP_CONFIG = {}
 APP_NAME = 'OpenCloud'
 APP_VERSION = '0.1'
 API_KEYS = (
@@ -26,8 +25,6 @@ API_KEYS = (
 CACHE_TYPE = 'simple'
 LIBCLOUD_VERIFY_CERTS = False # defaults to false ; on mac os x with virtualenvs, cert checks fail
 LOG_LEVEL = logging.DEBUG
-LOCAL_CONFIG = 'config_local.json'
-MASTER_CONFIG = 'config.json'
 # mongodb settings
 MONGOALCHEMY_DATABASE = 'opencloud'
 REDIS_HOST = 'localhost'
@@ -80,19 +77,3 @@ try:
     from local_config import *
 except ImportError:
     pass
-
-if os.path.exists(MASTER_CONFIG):
-    with open(MASTER_CONFIG, 'r') as f:
-        APP_CONFIG = json.loads(f.read())
-
-if os.path.exists(LOCAL_CONFIG):
-    with open(LOCAL_CONFIG, 'r') as f:
-        LOCAL_CONFIG = json.loads(f.read())
-
-# merge local and master configs
-for k,v in LOCAL_CONFIG.iteritems():
-    if isinstance(LOCAL_CONFIG[k], dict):
-        for x, y in LOCAL_CONFIG[k].iteritems():
-            APP_CONFIG[k][x] = y
-    else:
-        APP_CONFIG[k] = v

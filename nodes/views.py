@@ -20,6 +20,7 @@ import messages
 from utils import cloud, get_provider_info
 import config
 from nodes.models import NodeData
+from accounts.models import Organization, Account
 
 bp = nodes_blueprint = Blueprint('nodes', __name__)
 app = config.create_app()
@@ -31,9 +32,9 @@ cache = Cache(app)
 def index(region=None):
     regions = []
     provider = None
-    org_data = current_app.config.get('APP_CONFIG').get('organizations').get(session.get('default_organization'))
-    if org_data:
-        provider = org_data.get('provider')
+    account_data = Account.query.filter({'organization': session.get('organization').uuid, 'name': session.get('default_account')}).first()
+    if account_data:
+        provider = account_data.provider
         if current_app.config.get('REGIONS').get(provider):
             regions = [x.get('name') for x in current_app.config.get('REGIONS').get(provider)]
     ctx = {
@@ -46,9 +47,9 @@ def index(region=None):
 @bp.route('/<provider>/<region>/')
 @login_required
 def nodes(provider=None, region=None):
-    org = request.args.get('organization', session.get('default_organization'))
+    account = request.args.get('account', session.get('default_account'))
     nodes = None
-    provider_info = get_provider_info(provider)
+    provider_info = get_provider_info(provider, session.get('organization').name, account)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
@@ -63,51 +64,51 @@ def nodes(provider=None, region=None):
 @bp.route('/<provider>/<region>/<node_id>/reboot')
 @login_required
 def node_reboot(provider=None, region=None, node_id=None):
-    org = request.args.get('organization', session.get('default_organization'))
-    provider_info = get_provider_info(provider)
+    account = request.args.get('account', session.get('default_account'))
+    provider_info = get_provider_info(provider, session.get('organization').name, account)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
         cloud.reboot_node(provider, region, provider_id, provider_key, node_id)
         flash(messages.INSTANCE_REBOOTED)
-        current_app.logger.info('{0} rebooted node {1} in {2} ({3})'.format(session.get('user').username, \
-            node_id, provider, region))
+        current_app.logger.info('{0} ({1}) rebooted node {2} in {3} ({4})'.format(session.get('user').username, \
+            session.get('organization').name, node_id, provider, region))
     return redirect(url_for('nodes.index', region=region))
 
 @bp.route('/<provider>/<region>/<node_id>/stop')
 @login_required
 def node_stop(provider=None, region=None, node_id=None):
-    org = request.args.get('organization', session.get('default_organization'))
-    provider_info = get_provider_info(provider)
+    account = request.args.get('account', session.get('default_account'))
+    provider_info = get_provider_info(provider, session.get('organization').name, account)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
         if cloud.stop_node(provider, region, provider_id, provider_key, node_id):
             flash(messages.INSTANCE_STOPPED)
-            current_app.logger.info('{0} stopped node {1} in {2} ({3})'.format(session.get('user').username, \
-                node_id, provider, region))
+            current_app.logger.info('{0} ({1}) stopped node {2} in {3} ({4})'.format(session.get('user').username, \
+                session.get('organization').name, node_id, provider, region))
     return redirect(url_for('nodes.index', region=region))
 
 @bp.route('/<provider>/<region>/<node_id>/destroy')
 @login_required
 def node_destroy(provider=None, region=None, node_id=None):
-    org = request.args.get('organization', session.get('default_organization'))
-    provider_info = get_provider_info(provider)
+    account = request.args.get('account', session.get('default_account'))
+    provider_info = get_provider_info(provider, session.get('organization').name, account)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
         cloud.destroy_node(provider, region, provider_id, provider_key, node_id)
         flash(messages.INSTANCE_DESTROYED)
-        current_app.logger.info('{0} destroyed node {1} in {2} ({3})'.format(session.get('user').username, \
-            node_id, provider, region))
+        current_app.logger.info('{0} ({1}) destroyed node {2} in {3} ({4})'.format(session.get('user').username, \
+            session.get('organization').name, node_id, provider, region))
     return redirect(url_for('nodes.index', region=region))
 
 @bp.route('/<provider>/<region>/launch', methods=['GET', 'POST'])
 @login_required
 def node_launch(provider=None, region=None):
-    org = request.args.get('organization', session.get('default_organization'))
     nodes = None
-    provider_info = get_provider_info(provider)
+    account = request.args.get('account', session.get('default_account'))
+    provider_info = get_provider_info(provider, session.get('organization').name, account)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
@@ -120,8 +121,8 @@ def node_launch(provider=None, region=None):
         try:
             cloud.launch_node(provider, region, provider_id, provider_key, node_name, \
                 node_image_id, node_size_id, keypair=keypair, security_groups=security_groups)
-            current_app.logger.info('{0} launched node {1} ({2}) in {3} ({4})'.format(session.get('user').username, \
-                node_name, node_image_id, provider, region))
+            current_app.logger.info('{0} ({1}) launched node {2} ({3}) in {4} ({5})'.format(session.get('user').username, \
+                session.get('organization').name, node_name, node_image_id, provider, region))
             flash(messages.INSTANCE_LAUNCHED)
         except Exception, e:
             flash(e, 'error')
@@ -140,8 +141,8 @@ def node_launch(provider=None, region=None):
 @bp.route('/<provider>/<region>/<node_id>/roles')
 @login_required
 def node_roles(provider=None, region=None, node_id=None):
-    org = request.args.get('organization', session.get('default_organization'))
-    provider_info = get_provider_info(provider)
+    account = request.args.get('account', session.get('default_account'))
+    provider_info = get_provider_info(provider, session.get('organization').name, account)
     node_data = None
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
@@ -163,14 +164,17 @@ def node_roles(provider=None, region=None, node_id=None):
 @bp.route('/<provider>/<region>/<node_id>/roles/set', methods=['POST'])
 @login_required
 def node_set_roles(provider=None, region=None, node_id=None):
-    org = request.args.get('organization', session.get('default_organization'))
-    provider_info = get_provider_info(provider)
+    account = request.args.get('account', session.get('default_account'))
+    provider_info = get_provider_info(provider, session.get('organization').name, account)
     node_data = None
+    roles = request.form.get('roles', '').split()
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
         node_data = NodeData.get_by_node_id(node_id)
-        node_data.roles = request.form.get('roles', '').split()
+        node_data.roles = roles
         node_data.save()
+        current_app.logger.info('{0} ({1}) updated roles for node {2} in {3} ({4}): {5}'.format(session.get('user').username, \
+            session.get('organization').name, node_id, provider, region, roles))
         flash(messages.NODE_ROLES_UPDATED)
     return redirect(url_for('nodes.index', region=region))
