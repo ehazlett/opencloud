@@ -4,6 +4,8 @@ OpenCloud is a web application (written in Python using Flask) that manages vari
 
 OpenCloud supports multiple organizations that can have multiple accounts with various providers.
 
+View some [screenshots](http://bit.ly/Jbx00G).
+
 Setup
 -----
 Prerequisites:
