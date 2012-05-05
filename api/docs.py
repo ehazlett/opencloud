@@ -12,16 +12,31 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
+from flask import url_for, g
 from flaskext.babel import gettext
+from functools import wraps
 
+def load_api_url_prefix(f):
+    """
+    Loads the API url prefix into the `flask.g` object.  We use a decorator to bypass the "working out of context" flask 
+    error you get when using url_for out of a request context.
+    
+    """
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        g.api_url_prefix = url_for('api.index')
+        return f(*args, **kwargs)
+    return decorated
+
+@load_api_url_prefix
 def nodes():
     """
     API documentation for `api.views.nodes`
-    
+
     """
     data = {
-        'uri': '/nodes/<account>/<provider>/<region>/',
-        'info': gettext('Returns nodes in the region of the provider for the specified account'),
+        'uri': '{0}/<organization>/nodes/<account>/<provider>/<region>/'.format(g.api_url_prefix),
+        'info': gettext('Returns nodes in the region of the provider for the account in the specified organization'),
         'parameters': {
             'id': gettext('Node ID to use as a filter'),
         }

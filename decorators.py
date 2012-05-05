@@ -18,7 +18,7 @@ from flask import jsonify
 from flask import url_for
 from flask import flash
 from flask import session
-from accounts.models import User
+from accounts.models import Organization, User
 import messages
 
 def api_key_required(f):
@@ -40,6 +40,9 @@ def api_key_required(f):
         # check that user is active
         if user:
             session['user'] = user
+            if 'organization' in kwargs:
+                session['organization'] = Organization.get_by_name(kwargs.get('organization').lower())
+                print(session.get('organization'))
             if not user.active:
                 data = {'error': messages.ACCOUNT_INACTIVE}
                 return jsonify(data)
@@ -54,35 +57,5 @@ def admin_required(f):
         if not user or 'admin' not in user.roles:
             flash(messages.ACCESS_DENIED, 'error')
             return redirect(url_for('index'))
-        return f(*args, **kwargs)
-    return decorated
-
-def organization_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        # check for organization
-        if not request.args.get('organization'):
-            data = {'error': messages.ORGANIZATION_REQUIRED}
-            return jsonify(data)
-        return f(*args, **kwargs)
-    return decorated
-
-def provider_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        # check for provider
-        if not request.args.get('provider'):
-            data = {'error': messages.PROVIDER_REQUIRED}
-            return jsonify(data)
-        return f(*args, **kwargs)
-    return decorated
-
-def region_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        # check for region
-        if not request.args.get('region'):
-            data = {'error': messages.REGION_REQUIRED}
-            return jsonify(data)
         return f(*args, **kwargs)
     return decorated

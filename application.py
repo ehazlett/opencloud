@@ -37,7 +37,7 @@ from utils.logger import MongoDBHandler
 sentry = Sentry(config.SENTRY_DSN)
 
 app = config.create_app()
-app.register_blueprint(api_blueprint, url_prefix='/api')
+app.register_blueprint(api_blueprint, url_prefix='/api/v1')
 app.register_blueprint(accounts_blueprint, url_prefix='/accounts')
 app.register_blueprint(nodes_blueprint, url_prefix='/nodes')
 app.register_blueprint(logs_blueprint, url_prefix='/logs')
