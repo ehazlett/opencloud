@@ -21,6 +21,6 @@ You should now be able to view the application on `http://localhost:5000`
 
 Configuration
 --------------
-OpenCloud allows multiple accounts for multiple providers (currently EC2 and Rackspace but growing).  To setup a provider, login as an admin and click the username dropdown in the upper right and select `accounts`.  Click "New Account" and enter the provider credentials.  For `provider` use either `ec2` or `rackspace` at the moment.
+OpenCloud allows multiple accounts for multiple providers (currently EC2 and Rackspace but growing).  To setup a provider, login as an admin and click the username dropdown in the upper right and select "accounts".  Click "New Account" and enter the provider credentials.  For `provider` use either `ec2` or `rackspace` at the moment.
 
 These accounts will now show up in the dropdown list in the upper right when you login.  Provided you have entered proper credentials, you should be able to see your instances listed.
