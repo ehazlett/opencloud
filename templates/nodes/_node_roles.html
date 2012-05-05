@@ -1,0 +1,31 @@
+<div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>{{_('Node Roles')}} : {{node_id}}</h3>
+</div>
+<div class="modal-body">
+    <form id="node-roles" class="form-vertical well" method="post" action="{{url_for('nodes.node_set_roles', provider=provider, region=region, node_id=node_id)}}">
+        <fieldset>
+            <div class="control-group">
+                <label class="control-label" for="name">{{_('Roles')}}</label>
+                <div class="controls">
+                    <input id="roles" name="roles" class="input-xlarge" value="{{node_data.roles|join(' ')}}" />
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<div class="modal-footer">
+    <a href="#" class="btn btn-large btn-cancel" data-dismiss="modal">{{_('Cancel')}}</a>
+    <a id="btn-save" href="#" class="btn btn-large btn-primary">{{_('Save')}}</a>
+</div>
+<script type="text/javascript">
+    $(function(){
+        $("input#roles").tagit({
+            singleFieldDelimiter: " "
+        });
+        $("a#btn-save").click(function(){
+            $("form#node-roles").submit();
+            return false;
+        });
+    });
+</script>

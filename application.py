@@ -29,7 +29,7 @@ from utils import cloud
 from raven.contrib.flask import Sentry
 #from api.views import api_blueprint
 from accounts.views import accounts_blueprint
-from dashboard.views import dashboard_blueprint
+from nodes.views import nodes_blueprint
 from logs.views import logs_blueprint
 from accounts.models import User
 from utils.logger import MongoDBHandler
@@ -39,7 +39,7 @@ sentry = Sentry(config.SENTRY_DSN)
 app = config.create_app()
 #app.register_blueprint(api_blueprint, url_prefix='/api')
 app.register_blueprint(accounts_blueprint, url_prefix='/accounts')
-app.register_blueprint(dashboard_blueprint, url_prefix='/dashboard')
+app.register_blueprint(nodes_blueprint, url_prefix='/nodes')
 app.register_blueprint(logs_blueprint, url_prefix='/logs')
 babel = Babel(app)
 cache = Cache(app)
@@ -86,7 +86,7 @@ def log_level_name(level):
 @app.route('/')
 @login_required
 def index():
-    return redirect(url_for('dashboard.index'))
+    return redirect(url_for('nodes.index'))
 
 # ----- management commands -----
 def create_user():
