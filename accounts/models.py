@@ -34,11 +34,12 @@ def username_validator(username):
 
 class Organization(db.Document):
     config_collection_name = 'accounts_organization'
-    
+
     uuid = db.ComputedField(db.StringField(), lambda x: str(uuid4()), one_time=True)
     name = db.StringField()
     owner = db.StringField()
-    
+    api_key = db.StringField(default='')
+
     def update(self, **kwargs):
         # remove any key not in organization
         for k in kwargs.keys():
@@ -46,10 +47,14 @@ class Organization(db.Document):
                 kwargs.pop(k)
         q = self.query.filter_by(uuid=self.uuid).set(**kwargs)
         q.execute()
-        
+
     @classmethod
     def get_by_name(self, name=None):
         return self.query.filter(Organization.name==name).first()
+
+    @classmethod
+    def get_by_api_key(self, api_key=None):
+        return self.query.filter(Organization.api_key==api_key).first()
 
     @classmethod
     def get_by_uuid(self, uuid=None):
@@ -57,7 +62,7 @@ class Organization(db.Document):
 
 class Account(db.Document):
     config_collection_name = 'accounts_account'
-    
+
     uuid = db.ComputedField(db.StringField(), lambda x: str(uuid4()), one_time=True)
     name = db.StringField()
     organization = db.StringField()
@@ -66,7 +71,7 @@ class Account(db.Document):
     provider_key = db.StringField()
     default_images = db.DictField(db.StringField(), required=False, default={})
     keypair = db.StringField(required=False, default='')
-    
+
     def update(self, **kwargs):
         # remove any key not in organization
         for k in kwargs.keys():
@@ -74,11 +79,11 @@ class Account(db.Document):
                 kwargs.pop(k)
         q = self.query.filter_by(uuid=self.uuid).set(**kwargs)
         q.execute()
-    
+
     @classmethod
     def get_by_uuid(self, uuid=None):
         return self.query.filter(Account.uuid==uuid).first()
-    
+
 class User(db.Document):
     config_collection_name = 'accounts_user'
 

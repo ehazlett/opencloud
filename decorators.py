@@ -20,6 +20,7 @@ from flask import flash
 from flask import session
 from accounts.models import Organization, User
 import messages
+from utils import generate_api_response
 
 def api_key_required(f):
     @wraps(f)
@@ -32,20 +33,30 @@ def api_key_required(f):
         # validate
         if not api_key:
             data = {'error': messages.NO_API_KEY}
-            return jsonify(data)
+            return generate_api_response(data, 401)
         user = User.get_by_api_key(api_key=api_key)
-        if not user and api_key not in current_app.config.get('API_KEYS', []):
+        organization = Organization.get_by_api_key(api_key=api_key)
+        if not user and not organization:
             data = {'error': messages.INVALID_API_KEY}
-            return jsonify(data)
+            return generate_api_response(data, 401)
+        requested_org = kwargs.get('organization')
         # check that user is active
         if user:
             session['user'] = user
-            if 'organization' in kwargs:
-                session['organization'] = Organization.get_by_name(kwargs.get('organization').lower())
-                print(session.get('organization'))
+            # allow admins to see all orgs
+            if user.is_admin():
+                session['organization'] = Organization.get_by_name(kwargs.get('organization'))
+            else:
+                session['organization'] = Organization.get_by_uuid(user.organization)
             if not user.active:
                 data = {'error': messages.ACCOUNT_INACTIVE}
-                return jsonify(data)
+                return generate_api_response(data, 403)
+        if organization:
+            session['organization'] = organization
+        # check that user is authorized for the desired organization
+        if requested_org and requested_org != session.get('organization').name.lower():
+            data = {'error': messages.ACCESS_DENIED}
+            return generate_api_response(data, 403)
         return f(*args, **kwargs)
     return decorated
 

@@ -13,7 +13,8 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 import hashlib
-from flask import current_app, session, request
+from flask import current_app, session, request, Response, json
+from bson import json_util
 from accounts.models import Organization, Account
 
 def hash_password(password=None):
@@ -48,3 +49,19 @@ def get_provider_info(provider=None, organization=None, account=None):
         provider_data = provider_data
     )
     return data
+    
+def generate_api_response(data, status=200, content_type='application/json'):
+    """
+    `flask.Response` factory for api responses
+
+    :param data: Data that gets serialized to JSON
+    :param status: Status code (default: 200)
+    :param content_type: Content type (default: application/json)
+
+    """
+    indent = None
+    if request.args.get('pretty'):
+        indent = 2
+    data = json.dumps(data, sort_keys=True, indent=indent, default=json_util.default)
+    resp = Response(data, status=status, content_type=content_type)
+    return resp

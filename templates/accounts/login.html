@@ -5,11 +5,25 @@
 <div class="container content">
   <div class="row-fluid">
     <div id="login">
-      <form id="form-login" class="well" method="POST">
+      <form id="login" class="well" method="POST">
         <fieldset>
-          {% for field in form %}
-          {{render_field(field, class='input-large', placeholder=field.label.text)}}
-          {% endfor %}
+            <div class="control-group">
+                <div class="controls">
+                    <input type="text" name="username" value="" class="input-xlarge required" placeholder="{{_('username')}}" />
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <input type="password" name="password" value="" class="input-xlarge required" placeholder="{{_('password')}}" />
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    {% with org = session.get('organization') %}
+                    <input type="text" name="organization" value="{% if org %}{{org.name}}{% endif %}" class="input-xlarge required" placeholder="{{_('organization')}}" />
+                    {% endwith %}
+                </div>
+            </div>
         </fieldset>
         <div class="form-actions">
           <button id="form-submit" class="btn btn-large btn-primary btn-fill">{{_('Login')}}</button>
@@ -21,10 +35,7 @@
 
 <script type="text/javascript">
   $("#form-submit").click(function(){
-    if (validateForm("form-login")) {
-      $("#form-login").submit();
-    }
-    return false;
+    $("#form-login").submit();
   });
 
   $("#form-forgot").click(function(){
@@ -32,7 +43,8 @@
   });
 
   $(function(){
-    $("#username").focus();
+    $("input#username").focus();
+    $("form#login").validate();
   });
 </script>
 {% endblock %}

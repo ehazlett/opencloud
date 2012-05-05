@@ -17,7 +17,7 @@ from flask import request, render_template, jsonify, g, flash, redirect, url_for
 from flaskext.login import login_user, logout_user, login_required
 from config import create_app
 from accounts.models import Organization, Account, User
-from accounts.forms import LoginForm, UserForm, UserEditForm, OrganizationForm
+from accounts.forms import UserForm, UserEditForm, OrganizationForm
 from decorators import admin_required
 from uuid import uuid4
 import utils
@@ -56,7 +56,7 @@ def create_organization():
     org.owner = request.form.get('owner').lower()
     org.save()
     return redirect(url_for('accounts.organizations'))
-    
+
 @bp.route('/organizations/<uuid>/edit', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -77,7 +77,7 @@ def edit_organization(uuid=None):
         'form': form,
     }
     return render_template('accounts/edit_organization.html', **ctx)
-    
+
 @bp.route('/organizations/<uuid>/delete')
 @login_required
 @admin_required
@@ -86,7 +86,7 @@ def delete_organizations(uuid=None):
     if org:
         org.remove()
     return redirect(url_for('accounts.organizations'))
-    
+
 # accounts
 @bp.route('/', methods=['GET'])
 @login_required
@@ -120,7 +120,7 @@ def create_account():
     act.organization = request.form.get('organization').lower()
     act.save()
     return redirect(url_for('accounts.accounts'))
-    
+
 @bp.route('/<uuid>/edit', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -141,7 +141,7 @@ def edit_account(uuid=None):
         'organizations': Organization.query.ascending('name').all()
     }
     return render_template('accounts/edit_account.html', **ctx)
-    
+
 @bp.route('/<uuid>/delete')
 @login_required
 @admin_required
@@ -150,7 +150,7 @@ def delete_account(uuid=None):
     if account:
         account.remove()
     return redirect(url_for('accounts.accounts'))
-    
+
 # users
 @bp.route('/users/', methods=['GET'])
 @login_required
@@ -223,24 +223,23 @@ def login():
     User login
 
     """
-    form = LoginForm()
-    if form.validate_on_submit():
-        organization = Organization.get_by_name(form.organization.data.lower())
+    form = request.form
+    if request.method == 'POST':
+        organization = Organization.get_by_name(form.get('organization').lower())
         # validate
-        user = User.get_by_username(form.username.data, organization.uuid)
+        user = User.get_by_username(form.get('username'), organization.uuid)
         if user:
-            if utils.hash_password(form.password.data) == user.password:
+            if utils.hash_password(form.get('password')) == user.password:
                 login_user(user)
                 session['user'] = user
                 session['organization'] = organization
                 current_app.logger.info('User {0} ({1}) login from {2}'.format(user.username, organization.name, \
                     request.remote_addr))
                 return redirect(request.args.get("next") or url_for("index"))
-        current_app.logger.warn('Invalid login for {0} ({1}) from {2}'.format(form.username.data, organization.name, \
+        current_app.logger.warn('Invalid login for {0} ({1}) from {2}'.format(form.get('username'), organization.name, \
             request.remote_addr))
         flash(messages.INVALID_USERNAME_OR_PASSWORD, 'error')
     ctx = {
-        'form': form,
     }
     return render_template('accounts/login.html', **ctx)
 

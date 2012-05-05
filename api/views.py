@@ -18,21 +18,13 @@ from flask import json
 from functools import wraps
 from accounts.models import Organization
 from decorators import api_key_required
-from utils import cloud, get_provider_info
+from utils import cloud, get_provider_info, generate_api_response
 from nodes.models import NodeData
 from bson import json_util
 import re
 from api import docs
 
 bp = api_blueprint = Blueprint('api', __name__)
-
-def generate_api_response(data, status=200, content_type='application/json'):
-    indent = None
-    if request.args.get('pretty'):
-        indent = 2
-    data = json.dumps(data, sort_keys=True, indent=indent, default=json_util.default)
-    resp = Response(data, status=status, content_type=content_type)
-    return resp
 
 def load_provider_info(f):
     """
