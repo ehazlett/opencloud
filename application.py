@@ -88,6 +88,11 @@ def log_level_name(level):
         50: 'critical',
     }
     return levels.get(level, 'unknown')
+
+@app.template_filter('get_org_from_uuid')
+def get_org_from_uuid(uuid):
+    return Organization.get_by_uuid(uuid).name
+
 # ----- end filters
 
 @app.route('/')
