@@ -47,14 +47,14 @@ def index():
     }
     return generate_api_response(data)
 
-@bp.route('/nodes/<organization>/<provider>/<region>')
+@bp.route('/nodes/<account>/<provider>/<region>')
 @api_key_required
-def nodes(organization=None, provider=None, region=None):
+def nodes(account=None, provider=None, region=None):
     node_id = request.args.get('id', None)
     if node_id:
         node_id = [node_id]
     nodes = None
-    provider_info = get_provider_info(provider, organization=organization)
+    provider_info = get_provider_info(provider, account=account)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
         provider_key = provider_info.get('provider_key')
@@ -75,7 +75,7 @@ def nodes(organization=None, provider=None, region=None):
         }
         node_list.append(data)
     data = {
-        'organization': organization,
+        'account': account,
         'provider': provider,
         'region': region,
         'nodes': node_list,

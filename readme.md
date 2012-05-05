@@ -31,7 +31,7 @@ OpenCloud allows multiple accounts for multiple providers (currently EC2 and Rac
 
 ```javascript
 {
-  "organizations": {
+  "accounts": {
     "first account": {
       "api_keys": [
         "testapikey"

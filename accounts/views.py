@@ -16,8 +16,8 @@ from flask import Blueprint
 from flask import request, render_template, jsonify, g, flash, redirect, url_for, session, current_app
 from flaskext.login import login_user, logout_user, login_required
 from config import create_app
-from accounts.models import User
-from accounts.forms import LoginForm, AccountForm, AccountEditForm
+from accounts.models import Organization, User
+from accounts.forms import LoginForm, UserForm, UserEditForm, OrganizationForm
 from decorators import admin_required
 from uuid import uuid4
 import utils
@@ -27,44 +27,107 @@ import re
 bp = accounts_blueprint = Blueprint('accounts', __name__)
 app = create_app()
 
-@bp.route('/', methods=['GET'])
+@bp.route('/organizations/', methods=['GET'])
 @login_required
 @admin_required
-def index():
+def organizations():
+    count = int(request.args.get('count', 15))
+    page = int(request.args.get('page', 1))
+    query = request.args.get('search', None)
+    if query:
+        regex = re.compile(r'{0}'.format(re.escape(query), re.IGNORECASE))
+        results = Organization.query.filter({ '$or': \
+            [{'name': regex}]}).paginate(page, count, error_out=False)
+    else:
+        results = Organization.query.ascending('name').paginate(page, count, error_out=False)
+    ctx = {
+        'organizations': results,
+        'users': User.query.all(),
+        'search_query': query,
+    }
+    return render_template('accounts/organizations.html', **ctx)
+
+@bp.route('/organizations/create', methods=['POST'])
+@login_required
+@admin_required
+def create_organization():
+    org = Organization()
+    org.name = request.form.get('name')
+    org.owner = request.form.get('owner').lower()
+    org.save()
+    return redirect(url_for('accounts.organizations'))
+    
+@bp.route('/organizations/<uuid>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_organization(uuid=None):
+    organization = Organization.get_by_uuid(uuid)
+    form = OrganizationForm(obj=organization)
+    if form.validate_on_submit():
+        # validate
+        if organization:
+            # update db
+            data = form.data
+            # update
+            organization.update(**data)
+            flash(messages.ORGANIZATION_UPDATED)
+            return redirect(url_for('accounts.organizations'))
+    ctx = {
+        'organization': organization,
+        'form': form,
+    }
+    return render_template('accounts/edit_organization.html', **ctx)
+    
+@bp.route('/organizations/<uuid>/delete')
+@login_required
+@admin_required
+def delete_organizations(uuid=None):
+    org = Organization.get_by_uuid(uuid)
+    if org:
+        org.remove()
+    return redirect(url_for('accounts.organizations'))
+
+@bp.route('/users/', methods=['GET'])
+@login_required
+@admin_required
+def users():
     count = int(request.args.get('count', 15))
     page = int(request.args.get('page', 1))
     query = request.args.get('search', None)
     if query:
         regex = re.compile(r'{0}'.format(re.escape(query), re.IGNORECASE))
         results = User.query.filter({ '$or': \
-            [{'username': regex}, {'first_name': regex}, {'last_name': regex}, {'email': regex}]}).ascending('username').paginate(page, count, error_out=False)
+            [{'username': regex}, {'first_name': regex}, {'last_name': regex}, \
+                {'email': regex}]}).ascending('username').paginate(page, count, error_out=False)
     else:
         results = User.query.ascending('username').paginate(page, count, error_out=False)
     ctx = {
         'users': results,
+        'organizations': Organization.query.ascending('name').all(),
         'search_query': query,
     }
-    return render_template('accounts/index.html', **ctx)
+    return render_template('accounts/users.html', **ctx)
 
-@bp.route('/create', methods=['POST'])
+@bp.route('/users/create', methods=['POST'])
 @login_required
 @admin_required
-def create():
+def create_user():
     user = User()
     user.username = request.form.get('username', None)
     user.first_name = request.form.get('first_name', '')
     user.last_name = request.form.get('last_name', '')
     user.email = request.form.get('email', '')
+    user.account = request.form.get('account', None)
     user.set_password(request.form.get('password', ''))
     user.save()
-    return redirect(url_for('accounts.index'))
+    return redirect(url_for('accounts.users'))
 
-@bp.route('/<uuid>/edit', methods=['GET', 'POST'])
+@bp.route('/users/<uuid>/edit', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def edit(uuid=None):
+def edit_user(uuid=None):
     user = User.get_by_uuid(uuid)
-    form = AccountEditForm(obj=user)
+    form = UserEditForm(obj=user)
     if form.validate_on_submit():
         # validate
         if user:
@@ -73,39 +136,43 @@ def edit(uuid=None):
             # update
             user.update(**data)
             flash(messages.USER_UPDATED)
-            return redirect(url_for('accounts.index'))
+            return redirect(url_for('accounts.users'))
     ctx = {
         'user': user,
         'form': form,
     }
-    return render_template('accounts/settings.html', **ctx)
+    return render_template('accounts/edit_user.html', **ctx)
 
-@bp.route('/<username>/delete')
+@bp.route('/users/<uuid>/delete')
 @login_required
 @admin_required
-def delete_account(username=None):
-    user = User.get_by_username(username)
+def delete_user(uuid=None):
+    user = User.get_by_uuid(uuid)
     if user:
         user.remove()
-    return redirect(url_for('accounts.index'))
+    return redirect(url_for('accounts.users'))
 
 @bp.route('/login/', methods=['GET', 'POST'])
 def login():
     """
-    Account login
+    User login
 
     """
     form = LoginForm()
     if form.validate_on_submit():
+        organization = Organization.get_by_name(form.organization.data.lower())
         # validate
-        user = User.get_by_username(form.username.data)
+        user = User.get_by_username(form.username.data, organization.uuid)
         if user:
             if utils.hash_password(form.password.data) == user.password:
                 login_user(user)
                 session['user'] = user
-                current_app.logger.info('User {0} login from {1}'.format(user.username, request.remote_addr))
+                session['organization'] = organization
+                current_app.logger.info('User {0} ({1}) login from {2}'.format(user.username, organization.name, \
+                    request.remote_addr))
                 return redirect(request.args.get("next") or url_for("index"))
-        current_app.logger.warn('Invalid login for {0} from {1}'.format(form.username.data, request.remote_addr))
+        current_app.logger.warn('Invalid login for {0} ({1}) from {2}'.format(form.username.data, organization.name, \
+            request.remote_addr))
         flash(messages.INVALID_USERNAME_OR_PASSWORD, 'error')
     ctx = {
         'form': form,
@@ -114,13 +181,13 @@ def login():
 
 @bp.route('/settings/', methods=['GET', 'POST'])
 @login_required
-def settings():
+def account_settings():
     """
     Account settings
 
     """
     user = session.get('user', None)
-    form = AccountForm(obj=user)
+    form = UserForm(obj=user)
     if form.validate_on_submit():
         # validate
         if user:
@@ -135,21 +202,21 @@ def settings():
         'account': session.get('user', None),
         'form': form,
     }
-    return render_template('accounts/settings.html', **ctx)
+    return render_template('accounts/edit_user.html', **ctx)
 
 @bp.route('/generateapikey')
 @login_required
 def generate_api_key():
     return str(uuid4())
 
-@bp.route('/setdefaultorg/', methods=['POST'])
+@bp.route('/setdefaultaccount/', methods=['POST'])
 @login_required
-def set_default_org():
+def set_default_account():
     """
-    Sets the default organization for the session
+    Sets the default account for the session
 
     """
-    session['default_organization'] = request.form.get('org', None)
+    session['default_account'] = request.form.get('account', None)
     return ''
 
 @bp.route('/logout/', methods=['GET'])

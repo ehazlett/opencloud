@@ -31,9 +31,9 @@ cache = Cache(app)
 def index(region=None):
     regions = []
     provider = None
-    org_data = current_app.config.get('APP_CONFIG').get('organizations').get(session.get('default_organization'))
-    if org_data:
-        provider = org_data.get('provider')
+    account_data = current_app.config.get('APP_CONFIG').get('accounts').get(session.get('default_account'))
+    if account_data:
+        provider = account_data.get('provider')
         if current_app.config.get('REGIONS').get(provider):
             regions = [x.get('name') for x in current_app.config.get('REGIONS').get(provider)]
     ctx = {
@@ -46,7 +46,7 @@ def index(region=None):
 @bp.route('/<provider>/<region>/')
 @login_required
 def nodes(provider=None, region=None):
-    org = request.args.get('organization', session.get('default_organization'))
+    account = request.args.get('account', session.get('default_account'))
     nodes = None
     provider_info = get_provider_info(provider)
     if provider_info.get('provider'):
@@ -63,7 +63,6 @@ def nodes(provider=None, region=None):
 @bp.route('/<provider>/<region>/<node_id>/reboot')
 @login_required
 def node_reboot(provider=None, region=None, node_id=None):
-    org = request.args.get('organization', session.get('default_organization'))
     provider_info = get_provider_info(provider)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
@@ -77,7 +76,6 @@ def node_reboot(provider=None, region=None, node_id=None):
 @bp.route('/<provider>/<region>/<node_id>/stop')
 @login_required
 def node_stop(provider=None, region=None, node_id=None):
-    org = request.args.get('organization', session.get('default_organization'))
     provider_info = get_provider_info(provider)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
@@ -91,7 +89,6 @@ def node_stop(provider=None, region=None, node_id=None):
 @bp.route('/<provider>/<region>/<node_id>/destroy')
 @login_required
 def node_destroy(provider=None, region=None, node_id=None):
-    org = request.args.get('organization', session.get('default_organization'))
     provider_info = get_provider_info(provider)
     if provider_info.get('provider'):
         provider_id = provider_info.get('provider_id')
@@ -105,7 +102,6 @@ def node_destroy(provider=None, region=None, node_id=None):
 @bp.route('/<provider>/<region>/launch', methods=['GET', 'POST'])
 @login_required
 def node_launch(provider=None, region=None):
-    org = request.args.get('organization', session.get('default_organization'))
     nodes = None
     provider_info = get_provider_info(provider)
     if provider_info.get('provider'):
@@ -140,7 +136,6 @@ def node_launch(provider=None, region=None):
 @bp.route('/<provider>/<region>/<node_id>/roles')
 @login_required
 def node_roles(provider=None, region=None, node_id=None):
-    org = request.args.get('organization', session.get('default_organization'))
     provider_info = get_provider_info(provider)
     node_data = None
     if provider_info.get('provider'):
@@ -163,7 +158,6 @@ def node_roles(provider=None, region=None, node_id=None):
 @bp.route('/<provider>/<region>/<node_id>/roles/set', methods=['POST'])
 @login_required
 def node_set_roles(provider=None, region=None, node_id=None):
-    org = request.args.get('organization', session.get('default_organization'))
     provider_info = get_provider_info(provider)
     node_data = None
     if provider_info.get('provider'):

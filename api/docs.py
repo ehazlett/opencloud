@@ -20,8 +20,8 @@ def nodes():
     
     """
     data = {
-        'uri': '/nodes/<organization>/<provider>/<region>/',
-        'info': gettext('Returns nodes in the region of the provider for the specified organization'),
+        'uri': '/nodes/<account>/<provider>/<region>/',
+        'info': gettext('Returns nodes in the region of the provider for the specified account'),
         'parameters': {
             'id': gettext('Node ID to use as a filter'),
         }

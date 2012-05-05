@@ -1,5 +1,5 @@
 {
-  "organizations": {
+  "accounts": {
     "default": {
       "api_keys": [
         "testapikey"

@@ -33,6 +33,7 @@ from nodes.views import nodes_blueprint
 from logs.views import logs_blueprint
 from accounts.models import User
 from utils.logger import MongoDBHandler
+from accounts.models import Organization
 
 sentry = Sentry(config.SENTRY_DSN)
 
@@ -102,6 +103,7 @@ def create_user():
                 print('Passwords do not match... Try again...')
         u = User(username=username)
         u.email = email
+        u.organization = Organization.get_by_name('default').uuid
         u.set_password(password)
         u.save()
         print('User created/updated successfully...')

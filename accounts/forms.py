@@ -14,7 +14,22 @@
 #    limitations under the License.
 from flaskext.wtf import Form, TextField, SelectField, Field, TextInput, widgets, validators
 from flaskext.babel import gettext
+from accounts.models import Organization, User
 
+def get_organization_choices():
+    organizations = Organization.query.all()
+    choices = [(None, '-----')]
+    for org in organizations:
+        choices.append((org.uuid, org.name))
+    return choices
+    
+def get_user_choices():
+    users = User.query.all()
+    choices = [(None, '-----')]
+    for user in users:
+        choices.append((user.uuid, user.username))
+    return choices
+    
 class RoleListField(Field):
     widget = TextInput()
 
@@ -34,8 +49,14 @@ class LoginForm(Form):
     username = TextField(gettext('Username'), validators=[validators.Required()])
     password = TextField(gettext('Password'), validators=[validators.Required()], \
         widget=widgets.PasswordInput())
+    organization = TextField(gettext('Organization'))
+    
+class OrganizationForm(Form):
+    name = TextField(gettext('Name'), validators=[validators.Required()])
+    owner = SelectField(gettext('Owner'), choices=get_user_choices(), \
+        validators=[validators.Required()])
 
-class AccountForm(Form):
+class UserForm(Form):
     first_name = TextField(gettext('First name'), validators=[validators.Required()])
     last_name = TextField(gettext('Last name'), validators=[validators.Required()])
     email = TextField(gettext('Email'), validators=[validators.Required()])
@@ -48,7 +69,7 @@ class AccountForm(Form):
         ])
     api_key = TextField(gettext('API Key'))
 
-class AccountEditForm(Form):
+class UserEditForm(Form):
     first_name = TextField(gettext('First name'), validators=[validators.Required()])
     last_name = TextField(gettext('Last name'), validators=[validators.Required()])
     email = TextField(gettext('Email'), validators=[validators.Required()])
@@ -59,4 +80,6 @@ class AccountEditForm(Form):
         widget=widgets.PasswordInput(), validators=[
             validators.EqualTo('password', message=gettext('Passwords do not match')),
         ])
+    organization = SelectField(gettext('Organization'), choices=get_organization_choices(), \
+        validators=[validators.Required()])
     roles = RoleListField(gettext('Roles (space separated)'))

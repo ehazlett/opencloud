@@ -25,18 +25,18 @@ def hash_password(password=None):
     h.update(password)
     return h.hexdigest()
 
-def get_provider_info(provider=None, organization=None):
+def get_provider_info(provider=None, account=None):
     data = {}
-    if not organization:
-        organization = request.args.get('organization', session.get('default_organization'))
-    org_data = current_app.config.get('APP_CONFIG').get('organizations').get(organization)
+    if not account:
+        account = request.args.get('account', session.get('default_account'))
+    account_data = current_app.config.get('APP_CONFIG').get('accounts').get(account)
     provider_id = None
     provider_key = None
     provider_data = None
-    if org_data:
-        provider_id = org_data.get('provider_id')
-        provider_key = org_data.get('provider_key')
-        provider_data = org_data.get('provider_data')
+    if account_data:
+        provider_id = account_data.get('provider_id')
+        provider_key = account_data.get('provider_key')
+        provider_data = account_data.get('provider_data')
     data.update(
         provider = provider,
         provider_id = provider_id,
