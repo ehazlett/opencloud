@@ -73,7 +73,7 @@ class Account(db.Document):
     keypair = db.StringField(required=False, default='')
 
     def update(self, **kwargs):
-        # remove any key not in organization
+        # remove any key not in account
         for k in kwargs.keys():
             if k not in self._fields.keys():
                 kwargs.pop(k)

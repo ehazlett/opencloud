@@ -18,6 +18,7 @@ from flask import jsonify
 from flask import url_for
 from flask import flash
 from flask import session
+from flaskext.login import current_user
 from accounts.models import Organization, User
 import messages
 from utils import generate_api_response
@@ -39,13 +40,13 @@ def api_key_required(f):
         if not user and not organization:
             data = {'error': messages.INVALID_API_KEY}
             return generate_api_response(data, 401)
-        requested_org = kwargs.get('organization')
+        requested_org = kwargs.get('organization','')
         # check that user is active
         if user:
             session['user'] = user
             # allow admins to see all orgs
             if user.is_admin():
-                session['organization'] = Organization.get_by_name(kwargs.get('organization'))
+                session['organization'] = Organization.get_by_name(requested_org)
             else:
                 session['organization'] = Organization.get_by_uuid(user.organization)
             if not user.active:
@@ -67,6 +68,15 @@ def admin_required(f):
         user = session.get('user', None)
         if not user or 'admin' not in user.roles:
             flash(messages.ACCESS_DENIED, 'error')
+            return redirect(url_for('index'))
+        return f(*args, **kwargs)
+    return decorated
+
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        # check for login
+        if not current_user.is_authenticated():
             return redirect(url_for('index'))
         return f(*args, **kwargs)
     return decorated
