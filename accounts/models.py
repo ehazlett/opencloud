@@ -69,7 +69,7 @@ class Account(db.Document):
     provider = db.StringField()
     provider_id = db.StringField()
     provider_key = db.StringField()
-    default_images = db.DictField(db.StringField(), required=False, default={})
+    default_images = db.ListField(db.DictField(db.StringField()), required=False, default=[{}])
     keypair = db.StringField(required=False, default='')
 
     def update(self, **kwargs):

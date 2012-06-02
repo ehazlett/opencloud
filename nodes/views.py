@@ -127,13 +127,14 @@ def node_launch(provider=None, region=None):
         except Exception, e:
             flash(e, 'error')
         return redirect(url_for('nodes.index', region=region))
-    default_images = provider_info.get('provider_data').get('images', {}).get(region, None)
+    default_images = [x for x in provider_info.get('provider_data', {}).get('default_images', None) if x.get('region') == region]
     ctx = {
         'provider': provider,
         'provider_info': provider_info,
         'region': region,
         'images': cloud.get_images(provider, region, provider_id, provider_key),
         'sizes': cloud.get_sizes(provider, region, provider_id, provider_key),
+        'keypair': provider_info.get('provider_data', {}).get('keypair'),
         'default_images': default_images,
     }
     return render_template('nodes/_launch_server.html', **ctx)

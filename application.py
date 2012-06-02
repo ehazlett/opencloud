@@ -114,6 +114,13 @@ def create_user():
                 print('Passwords do not match... Try again...')
         u = User(username=username)
         u.email = email
+        # check for org
+        org = Organization.get_by_name('default')
+        if not org:
+            org = Organization()
+            org.name = 'default'
+            org.owner = u.uuid
+            org.save()
         u.organization = Organization.get_by_name('default').uuid
         u.set_password(password)
         u.add_role('admin')

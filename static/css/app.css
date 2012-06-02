@@ -13,10 +13,17 @@ body {
 .alert {
   position: fixed;
   overflow: visible;
-  top: 40px;
+  top: 45px;
   left: 0;
   right: 0;
   z-index: 999;
+  margin: 0 5px 0 5px;
+}
+.divider-top {
+  border-top: 1px solid #dedede;
+}
+.divider-bottom {
+  border-bottom: 1px solid #dedede;
 }
 .btn-fill {
   width: 100%;
@@ -64,4 +71,11 @@ div.loading {
   margin: 0 auto 0 auto;
   background: url('/static/img/loader_64.gif') no-repeat;
   background-position: center;
+}
+a.btn-default-image-remove {
+  position: relative;
+  top: -5px;
+}
+a.btn-default-image-remove i {
+  cursor: pointer;
 }

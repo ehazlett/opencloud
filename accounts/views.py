@@ -17,7 +17,7 @@ from flask import request, render_template, jsonify, g, flash, redirect, url_for
 from flaskext.login import login_user, logout_user, login_required
 from config import create_app
 from accounts.models import Organization, Account, User
-from accounts.forms import UserForm, UserEditForm, OrganizationForm
+from accounts import forms
 from decorators import admin_required
 from uuid import uuid4
 import utils
@@ -62,7 +62,10 @@ def create_organization():
 @admin_required
 def edit_organization(uuid=None):
     organization = Organization.get_by_uuid(uuid)
-    form = OrganizationForm(obj=organization)
+    form = forms.OrganizationForm(obj=organization)
+    # HACK: WTForms doesn't do dynamic lookup on instantiation ; must set choices here otherwise
+    # new users won't show up
+    form.owner.choices = forms.get_user_choices()
     if form.validate_on_submit():
         # validate
         if organization:
@@ -133,6 +136,7 @@ def edit_account(uuid=None):
             account.provider_id = request.form.get('provider_id')
             account.provider_key = request.form.get('provider_key')
             account.keypair = request.form.get('keypair', '')
+            account.organization = request.form.get('organization', '')
             account.save()
             flash(messages.ACCOUNT_UPDATED)
             return redirect(url_for('accounts.accounts'))
@@ -149,6 +153,38 @@ def delete_account(uuid=None):
     account = Account.get_by_uuid(uuid)
     if account:
         account.remove()
+    return redirect(url_for('accounts.accounts'))
+
+@bp.route('/<uuid>/defaultimages')
+@login_required
+@admin_required
+def default_images(uuid=None):
+    account = Account.get_by_uuid(uuid)
+    ctx = {
+        'account': account,
+    }
+    return render_template('accounts/_default_images.html', **ctx)
+
+@bp.route('/<uuid>/updatedefaultimages', methods=['POST'])
+@login_required
+@admin_required
+def update_default_images(uuid=None):
+    account = Account.get_by_uuid(uuid)
+    image_names = request.form.getlist('image_name')
+    image_ids = request.form.getlist('image_id')
+    image_regions = request.form.getlist('image_region')
+    images = zip(image_names, image_ids, image_regions)
+    default_images = []
+    for img in images:
+        d = {
+            'name': img[0],
+            'id': img[1],
+            'region': img[2],
+        }
+        default_images.append(d)
+    account.default_images = default_images
+    account.save()
+    flash('{0} {1}'.format(account.name, messages.DEFAULT_IMAGES_UPDATED), 'success')
     return redirect(url_for('accounts.accounts'))
 
 # users
@@ -192,7 +228,10 @@ def create_user():
 @admin_required
 def edit_user(uuid=None):
     user = User.get_by_uuid(uuid)
-    form = UserEditForm(obj=user)
+    form = forms.UserEditForm(obj=user)
+    # HACK: WTForms doesn't do dynamic lookup on instantiation ; must set choices here otherwise
+    # new users won't show up
+    form.organization.choices = forms.get_organization_choices()
     if form.validate_on_submit():
         # validate
         if user:
@@ -251,7 +290,7 @@ def account_settings():
 
     """
     user = session.get('user', None)
-    form = UserForm(obj=user)
+    form = forms.UserForm(obj=user)
     if form.validate_on_submit():
         # validate
         if user:
