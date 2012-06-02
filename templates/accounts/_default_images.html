@@ -1,0 +1,42 @@
+<div class="modal-header">
+  <a class="close" data-dismiss="modal">×</a>
+  <h3>{{account.name|capitalize}} {{_('Default Images')}}</h3>
+</div>
+<div class="modal-body">
+  <form id="form-default-images" class="well" method="POST" action="{{url_for('accounts.update_default_images', uuid=account.uuid)}}">
+    <div class="pull-right"><a href="#" id="btn-add-image" class="btn"><i class="icon-plus"></i> {{_('Add')}}</a></div>
+  </form>
+</div>
+<div class="modal-footer">
+  <a href="#" id="btn-save" class="btn btn-large btn-primary">{{_('Save')}}</a>
+  <a href="#" class="btn btn-large btn-cancel" data-dismiss="modal">{{_('Close')}}</a>
+</div>
+<script type="text/javascript">
+  function addImage(name, id, region){
+    var name = name ? name : '';
+    var id = id ? id : '';
+    var region = region ? region : '';
+    $("<div class=\"control-group divider-bottom\"><div class=\"controls\"><input class=\"span3\" name=\"image_name\" value=\"" + name + "\" placeholder=\"{{_('Image Name')}}\"/> <a class=\"btn-default-image-remove\"><i class=\"icon-remove-sign\"></i></a> </div> <div class=\"controls\"><input class=\"span3\" name=\"image_id\" value=\"" + id + "\" placeholder=\"{{_('ID')}}\"/></div> <div class=\"controls\"><input class=\"span3\" name=\"image_region\" value=\"" + region + "\" placeholder=\"{{_('Region')}}\"/></div> </div>").appendTo("#form-default-images");
+    $("a.btn-default-image-remove").click(function(e){
+      if (confirm("{{_('Remove image?')}}")) {
+        removeImage($(this));
+      }
+    });
+  }
+  function removeImage(o){
+    $(o).parent().parent().remove();
+  }
+  $(function(){
+    $("a#btn-save").click(function(){
+      $("#form-default-images").submit();
+    });
+    $("a#btn-add-image").click(function(){
+      addImage();
+    });
+    {% for image in account.default_images %}
+    addImage("{{image.name}}", "{{image.id}}", "{{image.region}}");
+    {% else %}
+    addImage();
+    {% endfor %}
+  });
+</script>

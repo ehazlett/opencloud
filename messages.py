@@ -17,6 +17,7 @@ from flaskext.babel import gettext
 ACCESS_DENIED = gettext('Access denied.')
 ACCOUNT_INACTIVE = gettext('Your account is not active')
 ACCOUNT_UPDATED = gettext('Account updated')
+DEFAULT_IMAGES_UPDATED = gettext('default images updated')
 INSTANCE_DESTROYED = gettext('Instance destroyed')
 INSTANCE_LAUNCHED = gettext('Instance launched')
 INSTANCE_REBOOTED = gettext('Instance restarted')

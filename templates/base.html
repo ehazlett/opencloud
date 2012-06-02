@@ -113,18 +113,19 @@
     <script type="text/javascript" src="{{url_for('static', filename='js/app.js')}}"></script>
     <script type="text/javascript">
       $(function(){
-          {% if messages %}
-          $(".alert").alert();
-          {% endif %}
-          $("select#current-account").bind('change keypress', function() {
-              var currentAccount = $(this).val();
-              $.ajax({
-                  type: 'POST',
-                  url: "{{url_for('accounts.set_default_account')}}",
-                  data: {'account': currentAccount},
-                  success: function(data) { $("select#current-account").trigger('accountChange'); }
-              });
+        {% if messages %}
+        $(".alert").alert();
+        {% endif %}
+        $("a[rel=tooltip]").tooltip();
+        $("select#current-account").bind('change keypress', function() {
+          var currentAccount = $(this).val();
+          $.ajax({
+            type: 'POST',
+            url: "{{url_for('accounts.set_default_account')}}",
+            data: {'account': currentAccount},
+            success: function(data) { $("select#current-account").trigger('accountChange'); }
           });
+        });
       });
     </script>
   </body>

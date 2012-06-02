@@ -41,7 +41,10 @@ def get_provider_info(provider=None, organization=None, account=None):
     if account:
         provider_id = account.provider_id
         provider_key = account.provider_key
-        provider_data = {}
+        provider_data = {
+            'keypair': account.keypair,
+            'default_images': account.default_images,
+        }
     data.update(
         provider = provider,
         provider_id = provider_id,

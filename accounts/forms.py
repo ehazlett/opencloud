@@ -48,8 +48,7 @@ class RoleListField(Field):
 
 class OrganizationForm(Form):
     name = TextField(gettext('Name'), validators=[validators.Required()])
-    owner = SelectField(gettext('Owner'), choices=get_user_choices(), \
-        validators=[validators.Required()])
+    owner = SelectField(gettext('Owner'), validators=[validators.Required()], coerce=unicode)
     api_key = TextField(gettext('API Key'))
 
 class UserForm(Form):
